@@ -1,0 +1,117 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* ✅ Tidak bisa scroll */
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f9ff;
+    position: relative;
+}
+
+.login-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* ✅ center di tengah layar */
+    width: 100%;
+    max-width: 360px;
+    padding: 15px;
+}
+
+.login-container .card {
+    width: 100%;
+    padding: 25px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background-color: #fff;
+}
+
+.login-container h4 {
+    color: #156c9c;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.login-container .form-control {
+    font-size: 0.875rem;
+    padding: 10px 12px;
+    border-radius: 8px;
+}
+
+.position-relative {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    transition: color 0.3s ease;
+}
+
+.toggle-password:hover {
+    color: #156c9c;
+}
+
+.login-container .btn {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 10px 0;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.login-container .btn:hover {
+    background-color: #105a73;
+}
+
+.login-container a {
+    font-size: 0.875rem;
+    text-decoration: none;
+    color: #156c9c;
+    transition: color 0.3s ease;
+}
+
+.login-container a:hover {
+    text-decoration: underline;
+    color: #105a73;
+}
+
+.login-container .alert {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+}
+
+.forgot-password {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Footer fixed di bawah */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgb(21, 140, 156);
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    padding: 12px 0;
+    z-index: 999;
+}
+
+/* Responsiveness (untuk layar HP) */
+@media (max-width: 576px) {
+    .login-container {
+        padding: 10px;
+    }
+
+    .toggle-password {
+        right: 8px;
+    }
+}
