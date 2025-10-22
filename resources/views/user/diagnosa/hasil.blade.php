@@ -1,204 +1,166 @@
 @extends('layouts.app')
 
+@section('title', 'Hasil Diagnosa - Sistem Pakar KIPI')
+
 @section('content')
-<style>
-    .card {
-        padding: 11px; /* lebih kecil */
-        margin-top: 20px;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
-        max-width: 500px; /* dipersempit lagi */
-    }
-    h5 {
-        font-size: 1rem; /* kecil */
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-    h6 {
-        font-size: 0.8rem;
-        font-weight: 300;
-        margin-bottom: 2px;
-    }
-    table {
-        margin-bottom: 0.4rem;
-    }
-    table th, table td {
-        font-size: 11px; /* lebih kecil */
-        padding: 4px 6px; /* lebih rapat */
-        vertical-align: middle;
-    }
-    .table thead th {
-        background: #f8f9fa;
-        font-weight: 600;
-        font-size: 11px;
-    }
-    .btn {
-        font-size: 11px; /* lebih kecil */
-        padding: 4px 10px; /* rapat */
-        border-radius: 5px;
-    }
-    p {
-        font-size: 11px;
-        margin-bottom: 6px;
-    }
-    small {
-        font-size: 10px;
-    }
-</style>
+    <div class="flex justify-center py-12">
 
-<div class="card shadow-sm mx-auto">
-    <h5 class="text-center">Hasil Diagnosa KIPI</h5>
-    <p class="text-center text-muted">
-        {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}
-    </p>
+        {{-- Card Utama Konten --}}
+        <div class="w-full max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-slate-100">
 
-    {{-- Tabel Data Anak --}}
-    <table class="table table-bordered align-middle" style="table-layout: fixed; width:100%;">
-        <thead>
-          <tr>
-            <th colspan="4" class="text-center">Data Anak</th>
-        </tr>
+            {{-- Header --}}
+            <div class="text-center mb-8 pb-4 border-b border-slate-200">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">Diagnosa KIPI Selesai!</h2>
+                <p class="text-md text-slate-500">
+                    Berikut adalah hasil diagnosa berdasarkan gejala yang Anda masukkan.
+                </p>
+                <p class="text-sm text-slate-400 mt-2">
+                    Tanggal: {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y, HH:mm') }}
+                </p>
+            </div>
 
-        </thead>
-        <tbody>
-            <tr>
-                <td><strong>Nama Anak</strong></td>
-                <td>{{ session('nama_anak', '-') }}</td>
-                <td><strong>Jenis Kelamin</strong></td>
-                <td>{{ session('jenis_kelamin', '-') }}</td>
-            </tr>
-            <tr>
-                <td><strong>Tanggal Lahir</strong></td>
-                <td>
-                    @if(session('tanggal_lahir'))
-                        {{ \Carbon\Carbon::parse(session('tanggal_lahir'))->locale('id')->isoFormat('D MMM Y') }}
-                    @else
-                        -
-                    @endif
-                </td>
-                <td><strong>Usia (bln)</strong></td>
-                <td>{{ session('usia_anak', '-') }}</td>
-            </tr>
-            <tr>
-                <td><strong>Ibu</strong></td>
-                <td>{{ session('nama_ibu', '-') }}</td>
-                <td><strong>Vaksin</strong></td>
-                <td>{{ session('jenis_vaksin', '-') }}</td>
-            </tr>
-            <tr>
-                <td><strong>Tempat imunisasi</strong></td>
-                <td>{{ session('tempat_imunisasi', '-') }}</td>
-                <td><strong>Tgl Imunisasi</strong></td>
-                <td>
-                    @if(session('tanggal_imunisasi'))
-                        {{ \Carbon\Carbon::parse(session('tanggal_imunisasi'))->locale('id')->isoFormat('D MMM Y') }}
-                    @else
-                        -
-                    @endif
-                </td>
-            </tr>
-            <tr>
-                <td><strong>Alamat</strong></td>
-                <td colspan="3">{{ session('alamat', '-') }}</td>
-            </tr>
-        </tbody>
-    </table>
+            {{-- Result Card Utama --}}
+            @if (!empty($hasilTerbaik) && isset($hasilTerbaik['cf'], $hasilTerbaik['jenis_kipi']))
+                <div
+                    class="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white rounded-2xl p-6 mb-8 shadow-lg flex flex-col md:flex-row items-center gap-6">
+                    <div class="flex-shrink-0 text-5xl md:text-6xl">
+                        <i class="fas fa-syringe"></i> {{-- Ikon suntikan --}}
+                    </div>
+                    <div class="flex-grow text-center md:text-left">
+                        <p class="text-xl font-semibold mb-1">Kemungkinan KIPI yang Dialami:</p>
+                        <h3 class="text-4xl font-extrabold mb-2">{{ $hasilTerbaik['jenis_kipi'] }}</h3>
+                        <p class="text-lg">Tingkat Kepastian: <span
+                                class="font-bold text-yellow-300">{{ number_format($hasilTerbaik['cf'] * 100, 0) }}%</span>
+                        </p>
+                    </div>
+                </div>
 
-    {{-- Gejala --}}
-@if (!empty($gejalaDipilih) && is_array($gejalaDipilih))
-    @php 
-        // hanya ambil gejala yang cf_user > 0
-        $filteredGejala = array_filter($gejalaDipilih, fn($g) => isset($g['cf_user']) && floatval($g['cf_user']) > 0);
-        $chunks = array_chunk($filteredGejala, 2);
+                {{-- Saran Penanganan --}}
+                <div class="mb-8 p-5 bg-indigo-50 rounded-xl border border-indigo-200">
+                    <h4 class="text-lg font-semibold text-indigo-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-lightbulb text-indigo-500"></i> Saran Penanganan
+                    </h4>
+                    <p class="text-slate-700 leading-relaxed text-base">
+                        {{ $hasilTerbaik['saran'] ?? 'Tidak ada saran yang tersedia.' }}</p>
+                </div>
+            @else
+                <div class="bg-red-50 text-red-800 px-6 py-4 rounded-xl mb-6 flex items-start shadow-md border-l-4 border-red-500"
+                    role="alert">
+                    <div class="flex-shrink-0 mr-4 mt-1">
+                        <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-lg mb-2">Tidak Ada Hasil Diagnosa</p>
+                        <p class="text-sm">Maaf, kami tidak dapat memberikan diagnosa berdasarkan gejala yang Anda masukkan.
+                            Silakan coba diagnosa ulang.</p>
+                    </div>
+                </div>
+            @endif
 
-        function kategori($cf) {
-        if ($cf == 0) return "Tidak"; 
-        elseif ($cf > 0 && $cf <= 0.5) return "Ragu-ragu";
-        elseif ($cf > 0.5) return "Ya";
-        else return "-";
-    }
-    @endphp
 
-    @if(count($filteredGejala) > 0)
-        <table class="table table-bordered table-sm">
-            <thead class="text-center">
-                <tr>
-                    <th colspan="2">Gejala</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($chunks as $row)
-                    <tr>
-                        <td>
-                            {{ $row[0]['nama'] ?? ($row[0]['nama_gejala'] ?? '-') }}
-                            
-                        </td>
-                        <td>
-                            @if(isset($row[1]))
-                                {{ $row[1]['nama'] ?? ($row[1]['nama_gejala'] ?? '-') }}
-                               
+            {{-- Accordion untuk Detail Data Anak --}}
+            <div class="mb-6 border border-slate-200 rounded-xl overflow-hidden" x-data="{ open: false }">
+                <button @click="open = !open"
+                    class="flex items-center justify-between w-full px-5 py-4 bg-slate-50 hover:bg-slate-100 transition-colors focus:outline-none">
+                    <span class="text-lg font-semibold text-slate-700 flex items-center gap-2">
+                        <i class="fas fa-child text-indigo-500"></i> Detail Data Anak
+                    </span>
+                    <i class="fas fa-chevron-down text-slate-500 transition-transform duration-300"
+                        :class="{ 'rotate-180': open }"></i>
+                </button>
+                <div x-show="open" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
+                    class="p-5 bg-white border-t border-slate-200">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm text-slate-700">
+                        <p><strong class="text-slate-800">Nama Ibu:</strong> {{ session('nama_ibu', '-') }}</p>
+                        <p><strong class="text-slate-800">Nama Anak:</strong> {{ session('nama_anak', '-') }}</p>
+                        <p><strong class="text-slate-800">Jenis Kelamin:</strong> {{ session('jenis_kelamin', '-') }}</p>
+                        <p><strong class="text-slate-800">Usia Anak:</strong> {{ session('usia_anak', '-') }} bulan</p>
+                        <p><strong class="text-slate-800">Tanggal Lahir:</strong>
+                            @if (session('tanggal_lahir'))
+                                {{ \Carbon\Carbon::parse(session('tanggal_lahir'))->locale('id')->isoFormat('D MMMM Y') }}
+                            @else
+                                -
                             @endif
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @else
-        <p class="text-muted fst-italic">Tidak ada gejala yang dipilih.</p>
-    @endif
-@else
-    <p class="text-muted fst-italic">Tidak ada gejala.</p>
-@endif
+                        </p>
+                        <p><strong class="text-slate-800">Alamat:</strong> {{ session('alamat', '-') }}</p>
+                        <p><strong class="text-slate-800">Jenis Vaksin:</strong> {{ session('jenis_vaksin', '-') }}</p>
+                        <p><strong class="text-slate-800">Tempat Imunisasi:</strong> {{ session('tempat_imunisasi', '-') }}
+                        </p>
+                        <p><strong class="text-slate-800">Tanggal Imunisasi:</strong>
+                            @if (session('tanggal_imunisasi'))
+                                {{ \Carbon\Carbon::parse(session('tanggal_imunisasi'))->locale('id')->isoFormat('D MMMM Y') }}
+                            @else
+                                -
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-    {{-- Hasil Diagnosa --}}
+            {{-- Accordion untuk Detail Gejala --}}
+            @if (
+                !empty($gejalaDipilih) &&
+                    is_array($gejalaDipilih) &&
+                    count(array_filter($gejalaDipilih, fn($g) => isset($g['cf_user']) && floatval($g['cf_user']) > 0)) > 0)
+                @php $filteredGejala = array_filter($gejalaDipilih, fn($g) => isset($g['cf_user']) && floatval($g['cf_user']) > 0); @endphp
+                <div class="mb-8 border border-slate-200 rounded-xl overflow-hidden" x-data="{ open: false }">
+                    <button @click="open = !open"
+                        class="flex items-center justify-between w-full px-5 py-4 bg-slate-50 hover:bg-slate-100 transition-colors focus:outline-none">
+                        <span class="text-lg font-semibold text-slate-700 flex items-center gap-2">
+                            <i class="fas fa-list-check text-indigo-500"></i> Gejala yang Dipilih
+                        </span>
+                        <i class="fas fa-chevron-down text-slate-500 transition-transform duration-300"
+                            :class="{ 'rotate-180': open }"></i>
+                    </button>
+                    <div x-show="open" x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 -translate-y-2"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 -translate-y-2" class="p-5 bg-white border-t border-slate-200">
+                        <ul class="list-disc list-inside space-y-2 text-sm text-slate-700">
+                            @foreach ($filteredGejala as $gejala)
+                                <li>{{ $gejala['nama'] ?? ($gejala['nama_gejala'] ?? '-') }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
 
-    @if (!empty($hasilTerbaik) && isset($hasilTerbaik['cf'], $hasilTerbaik['jenis_kipi']))
-        <table class="table table-bordered table-sm">
-            <thead class="text-center">
-                <tr>
-                    <th style="width: 150px;">Diagnosa</th>
-                    <th>Saran</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="text-center align-middle">
-                        <h5 class="text-success fw-bold mb-1" style="font-size:14px;">
-                            {{ number_format($hasilTerbaik['cf'] * 100, 0) }}%
-                        </h5>
-                        <small>KIPI <strong>{{ $hasilTerbaik['jenis_kipi'] }}</strong></small>
-                    </td>
-                    <td style="font-size:11px;">{{ $hasilTerbaik['saran'] ?? '-' }}</td>
-                </tr>
-            </tbody>
-        </table>
-    @else
-        <p class="text-muted fst-italic">Tidak ada hasil diagnosa.</p>
-    @endif
+            {{-- Tombol Aksi --}}
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 pt-6 border-t border-slate-200">
+                @if (!empty($hasilTerbaik) && isset($hasilTerbaik['cf'], $hasilTerbaik['jenis_kipi']))
+                    <form action="{{ route('riwayat.simpan') }}" method="POST" class="w-full sm:w-auto">
+                        @csrf
+                        {{-- Hidden inputs --}}
+                        <input type="hidden" name="nama_ibu" value="{{ session('nama_ibu') }}">
+                        <input type="hidden" name="nama_anak" value="{{ session('nama_anak') }}">
+                        <input type="hidden" name="usia_anak" value="{{ session('usia_anak') }}">
+                        <input type="hidden" name="jenis_kipi" value="{{ $hasilTerbaik['jenis_kipi'] }}">
+                        <input type="hidden" name="nilai_cf" value="{{ $hasilTerbaik['cf'] }}">
+                        <input type="hidden" name="saran" value="{{ $hasilTerbaik['saran'] }}">
+                        <input type="hidden" name="gejala_dipilih" value='@json($gejalaDipilih)'>
+                        <input type="hidden" name="jenis_kelamin" value="{{ session('jenis_kelamin') }}">
+                        <input type="hidden" name="tanggal_lahir" value="{{ session('tanggal_lahir') }}">
+                        <input type="hidden" name="alamat" value="{{ session('alamat') }}">
+                        <input type="hidden" name="jenis_vaksin" value="{{ session('jenis_vaksin') }}">
+                        <input type="hidden" name="tempat_imunisasi" value="{{ session('tempat_imunisasi') }}">
+                        <input type="hidden" name="tanggal_imunisasi" value="{{ session('tanggal_imunisasi') }}">
 
-   
-    <div class="d-flex justify-content-center align-items-center">
-        @if (!empty($hasilTerbaik) && isset($hasilTerbaik['cf'], $hasilTerbaik['jenis_kipi']))
-            <form action="{{ route('riwayat.simpan') }}" method="POST" class="d-inline">
-                @csrf
-                <input type="hidden" name="nama_ibu" value="{{ session('nama_ibu') }}">
-                <input type="hidden" name="nama_anak" value="{{ session('nama_anak') }}">
-                <input type="hidden" name="usia_anak" value="{{ session('usia_anak') }}">
-                <input type="hidden" name="jenis_kipi" value="{{ $hasilTerbaik['jenis_kipi'] }}">
-                <input type="hidden" name="nilai_cf" value="{{ $hasilTerbaik['cf'] }}">
-                <input type="hidden" name="saran" value="{{ $hasilTerbaik['saran'] }}">
-                <input type="hidden" name="gejala_dipilih" value='@json($gejalaDipilih)'>
-                <input type="hidden" name="jenis_kelamin" value="{{ session('jenis_kelamin') }}">
-                <input type="hidden" name="tanggal_lahir" value="{{ session('tanggal_lahir') }}">
-                <input type="hidden" name="alamat" value="{{ session('alamat') }}">
-                <input type="hidden" name="jenis_vaksin" value="{{ session('jenis_vaksin') }}">
-                <input type="hidden" name="tempat_imunisasi" value="{{ session('tempat_imunisasi') }}">
-                <input type="hidden" name="tanggal_imunisasi" value="{{ session('tanggal_imunisasi') }}">
-
-                <button type="submit" class="btn btn-success me-2">Simpan</button>
-            </form>
-        @endif
-        <a href="{{ route('diagnosa.ulang') }}" class="btn btn-primary">diagnosa ulang</a>
+                        <button type="submit"
+                            class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                            <i class="fas fa-save"></i> Simpan Hasil
+                        </button>
+                    </form>
+                @endif
+                <a href="{{ route('diagnosa.ulang') }}"
+                    class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-100 transition-colors duration-200">
+                    <i class="fas fa-redo-alt"></i> Diagnosa Ulang
+                </a>
+            </div>
+        </div>
     </div>
-</div>
 @endsection

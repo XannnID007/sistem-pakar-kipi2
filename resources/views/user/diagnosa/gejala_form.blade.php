@@ -1,156 +1,175 @@
 @extends('layouts.app')
 
+@section('title', 'Mulai Diagnosa - Sistem Pakar KIPI')
+
+@section('styles')
+    {{-- Hapus <style> block, semua styling sekarang ada di body --}}
+@endsection
+
 @section('content')
-<style>
-    .card {
-        margin-top: 80px;
-        border-radius: 12px;
-    }
+    <div class="flex justify-center py-12">
+        {{-- Card Utama --}}
+        <div class="w-full max-w-lg bg-white p-8 rounded-3xl shadow-xl border border-slate-100 mx-auto">
+            <form method="POST" action="{{ route('diagnosa.proses') }}" id="formDiagnosa">
+                @csrf
+                <h5 class="text-xl font-bold text-slate-800 text-center mb-6 pb-4 border-b border-slate-200">
+                    Pilih Gejala yang Dialami
+                </h5>
 
-    .form-check-label {
-        padding: 10px 15px;
-        border: 1px solid #ced4da;
-        border-radius: 6px;
-        cursor: pointer;
-        display: block;
-        margin-bottom: 10px;
-        transition: background-color 0.3s, color 0.3s;
-    }
+                {{-- Kontainer untuk step-step pertanyaan --}}
+                <div id="stepContainer" class="relative min-h-[280px]"> {{-- Beri tinggi minimum agar card tidak melompat --}}
 
-    .form-check-input {
-        /* input radio tetap ada, tapi disembunyikan visual */
-        opacity: 0;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        cursor: pointer;
-    }
+                    @forelse($gejalas as $index => $gejala)
+                        <div
+                            class="step transition-all duration-300 ease-in-out 
+                                {{-- Step pertama aktif, yang lain tersembunyi --}}
+                                {{ $index === 0 ? 'opacity-100 relative pointer-events-auto' : 'opacity-0 absolute inset-0 pointer-events-none' }}">
 
-    /* Warna aktif saat dipilih */
-    .form-check-input:checked + .form-check-label {
-        background-color: #0d6efd;
-        color: #fff;
-        border-color: #0d6efd;
-    }
+                            {{-- Pertanyaan --}}
+                            <p class="text-lg font-medium text-slate-800 mb-6 text-center">
+                                <strong class="text-indigo-600">{{ $index + 1 }}.</strong>
+                                Apakah anak Anda mengalami <strong>{{ $gejala->nama_gejala }}</strong>?
+                            </p>
 
-    .step {
-        animation: fadeIn 0.3s ease-in-out;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease-in-out;
-    }
+                            {{-- Pilihan Jawaban (Custom Radio with Tailwind) --}}
+                            <div class="space-y-4">
 
-    .step.active {
-        position: relative;
-        opacity: 1;
-        pointer-events: auto;
-    }
+                                {{-- Pilihan "Ya" --}}
+                                <div class="relative">
+                                    <input type="radio" name="gejala[{{ $gejala->kode_gejala }}][jawaban]"
+                                        id="ya_{{ $gejala->kode_gejala }}" value="1.0"
+                                        class="absolute opacity-0 w-full h-full inset-0 cursor-pointer peer">
+                                    <label for="ya_{{ $gejala->kode_gejala }}"
+                                        class="block w-full text-center px-4 py-3 border-2 border-slate-300 rounded-lg text-slate-700 font-medium transition-colors duration-200 
+                                              peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 hover:border-indigo-400">
+                                        Ya
+                                    </label>
+                                </div>
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+                                {{-- Pilihan "Ragu-ragu" --}}
+                                <div class="relative">
+                                    <input type="radio" name="gejala[{{ $gejala->kode_gejala }}][jawaban]"
+                                        id="ragu_{{ $gejala->kode_gejala }}" value="0.5"
+                                        class="absolute opacity-0 w-full h-full inset-0 cursor-pointer peer">
+                                    <label for="ragu_{{ $gejala->kode_gejala }}"
+                                        class="block w-full text-center px-4 py-3 border-2 border-slate-300 rounded-lg text-slate-700 font-medium transition-colors duration-200 
+                                              peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 hover:border-indigo-400">
+                                        Ragu-ragu
+                                    </label>
+                                </div>
 
-    /* Buat pilihan jawaban vertikal */
-    .btn-group-toggle {
-        display: block !important;
-    }
+                                {{-- Pilihan "Tidak" --}}
+                                <div class="relative">
+                                    <input type="radio" name="gejala[{{ $gejala->kode_gejala }}][jawaban]"
+                                        id="tidak_{{ $gejala->kode_gejala }}" value="0.0"
+                                        class="absolute opacity-0 w-full h-full inset-0 cursor-pointer peer">
+                                    <label for="tidak_{{ $gejala->kode_gejala }}"
+                                        class="block w-full text-center px-4 py-3 border-2 border-slate-300 rounded-lg text-slate-700 font-medium transition-colors duration-200 
+                                              peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 hover:border-indigo-400">
+                                        Tidak
+                                    </label>
+                                </div>
 
-    .btn-group-toggle .btn {
-        display: block;
-        width: 100%;
-        margin-bottom: 10px;
-        text-align: left;
-    }
-</style>
-
-<div class="container d-flex justify-content-center align-items-start">
-    <div class="card shadow-sm p-4 w-100" style="max-width: 450px; position: relative; min-height: 180px;">
-        <form method="POST" action="{{ route('diagnosa.proses') }}" id="formDiagnosa">
-            @csrf
-            <h5 class="text-center mb-4">Pilih Gejala yang Dialami</h5>
-
-            <div id="stepContainer" style="position: relative;">
-                @forelse($gejalas as $index => $gejala)
-                    <div class="step {{ $index === 0 ? 'active' : '' }}">
-                        <p><strong>{{ $index + 1 }}. Apakah anak Anda mengalami {{ $gejala->nama_gejala }}?</strong></p>
-
-                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                            <label class="btn btn-outline-primary">
-                                <input type="radio" name="gejala[{{ $gejala->kode_gejala }}][jawaban]" id="ya_{{ $gejala->kode_gejala }}" value="1.0" autocomplete="off"> Ya
-                            </label>
-                            <label class="btn btn-outline-primary">
-                                <input type="radio" name="gejala[{{ $gejala->kode_gejala }}][jawaban]" id="ragu_{{ $gejala->kode_gejala }}" value="0.5" autocomplete="off"> Ragu-ragu
-                            </label>
-                            <label class="btn btn-outline-primary">
-                                <input type="radio" name="gejala[{{ $gejala->kode_gejala }}][jawaban]" id="tidak_{{ $gejala->kode_gejala }}" value="0.0" autocomplete="off"> Tidak
-                            </label>
+                            </div>
                         </div>
-                    </div>
-                @empty
-                    <p class="text-danger">Tidak ada data gejala.</p>
-                @endforelse
-            </div>
+                    @empty
+                        <p class="text-center text-red-600">Tidak ada data gejala yang tersedia.</p>
+                    @endforelse
+                </div>
 
-            <!-- Tidak perlu tombol submit karena otomatis submit -->
-        </form>
+            </form>
+        </div>
     </div>
-</div>
+@endsection
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    let currentStep = 0;
-    const steps = document.querySelectorAll('.step');
-    const form = document.getElementById('formDiagnosa');
+@section('scripts')
+    {{-- Script telah dimodifikasi untuk mentransisikan kelas Tailwind --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentStep = 0;
+            const steps = document.querySelectorAll('.step');
+            const form = document.getElementById('formDiagnosa');
+            const totalSteps = steps.length;
 
-    function showStep(index) {
-        steps.forEach((step, i) => {
-            if (i === index) {
-                step.classList.add('active');
-            } else {
-                step.classList.remove('active');
+            // Fungsi untuk menampilkan step berdasarkan index
+            function showStep(index) {
+                steps.forEach((step, i) => {
+                    // Hapus semua kelas transisi
+                    step.classList.remove('opacity-100', 'relative', 'pointer-events-auto');
+                    step.classList.remove('opacity-0', 'absolute', 'inset-0', 'pointer-events-none');
+
+                    if (i === index) {
+                        // Tampilkan step yang aktif
+                        step.classList.add('opacity-100', 'relative', 'pointer-events-auto');
+                    } else {
+                        // Sembunyikan step yang tidak aktif
+                        step.classList.add('opacity-0', 'absolute', 'inset-0', 'pointer-events-none');
+                    }
+                });
             }
-        });
-    }
 
-    function allAnswered() {
-        let allAnsweredFlag = true;
-        steps.forEach(step => {
-            const radios = step.querySelectorAll('input[type="radio"]');
-            const answered = Array.from(radios).some(radio => radio.checked);
-            if (!answered) allAnsweredFlag = false;
-        });
-        return allAnsweredFlag;
-    }
+            // Fungsi untuk mengecek apakah semua pertanyaan sudah dijawab
+            function allAnswered() {
+                let allAnsweredFlag = true;
+                steps.forEach(step => {
+                    const radios = step.querySelectorAll('input[type="radio"]');
+                    // Cek apakah ada radio button di step ini yang ter-check
+                    const answered = Array.from(radios).some(radio => radio.checked);
+                    if (!answered) {
+                        allAnsweredFlag = false;
+                    }
+                });
+                return allAnsweredFlag;
+            }
 
-    function nextStep() {
-        if (currentStep < steps.length - 1) {
-            currentStep++;
-            showStep(currentStep);
-        }
+            // Fungsi untuk pindah ke step berikutnya
+            function nextStep() {
+                // Cek dulu apakah semua sudah terjawab
+                if (allAnswered()) {
+                    // Jika ya, submit form
+                    form.submit();
+                    return; // Hentikan eksekusi
+                }
 
-        if (allAnswered()) {
-            form.submit();
-        }
-    }
+                // Jika belum semua terjawab, cari step berikutnya yang belum dijawab
+                let nextUnansweredStep = (currentStep + 1) % totalSteps;
 
-    steps.forEach(step => {
-        const radios = step.querySelectorAll('input[type="radio"]');
-        radios.forEach(radio => {
-            radio.addEventListener('change', function () {
-                nextStep();
+                // Loop untuk mencari step berikutnya yang belum dijawab
+                while (nextUnansweredStep !== currentStep) {
+                    const radios = steps[nextUnansweredStep].querySelectorAll('input[type="radio"]');
+                    const answered = Array.from(radios).some(radio => radio.checked);
+
+                    if (!answered) {
+                        currentStep = nextUnansweredStep;
+                        showStep(currentStep);
+                        return; // Tampilkan step yang belum dijawab dan berhenti
+                    }
+
+                    nextUnansweredStep = (nextUnansweredStep + 1) % totalSteps;
+                }
+
+                // Jika loop selesai dan kembali ke step awal (artinya semua sudah terjawab)
+                if (allAnswered()) {
+                    form.submit();
+                }
+            }
+
+            // Tambahkan event listener ke semua radio button
+            steps.forEach((step, index) => {
+                const radios = step.querySelectorAll('input[type="radio"]');
+                radios.forEach(radio => {
+                    // Gunakan event 'click' atau 'change'
+                    radio.addEventListener('change', function() {
+                        // Beri sedikit jeda agar animasi radio button terlihat
+                        setTimeout(() => {
+                            nextStep();
+                        }, 200); // 200ms
+                    });
+                });
             });
-        });
-    });
 
-    showStep(currentStep);
-});
-</script>
+            // Tampilkan step pertama saat halaman dimuat
+            showStep(currentStep);
+        });
+    </script>
 @endsection

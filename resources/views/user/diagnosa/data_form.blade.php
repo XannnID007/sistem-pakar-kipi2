@@ -1,75 +1,136 @@
 @extends('layouts.app')
 
+@section('title', 'Mulai Diagnosa - Sistem Pakar KIPI')
+
 @section('content')
-<div class="container d-flex justify-content-center align-items-start mt-4">
-    <div class="card shadow-sm p-3 w-100" style="max-width: 700px; border-radius: 10px;">
-        <h6 class="text-center mb-3">
-            <i class="bi bi-clipboard-check-fill me-1 text-primary"></i>
-            Mohon lengkapi data terlebih dahulu
-        </h6>
+    {{-- Container untuk memusatkan card --}}
+    <div class="flex justify-center">
 
-        <form action="{{ route('diagnosa.storeData') }}" method="POST">
-            @csrf
+        {{-- Card Utama --}}
+        <div class="w-full max-w-3xl bg-white p-8 rounded-3xl shadow-xl border border-slate-100 mx-auto">
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-2">
-                        <label for="nama_ibu" class="form-label small">Nama Ibu</label>
-                        <input type="text" id="nama_ibu" name="nama_ibu" class="form-control form-control-sm" value="{{ old('nama_ibu') }}" required>
+            {{-- Judul Card --}}
+            <h2
+                class="text-xl font-bold text-slate-800 text-center mb-6 pb-4 border-b border-slate-200 flex items-center justify-center gap-2">
+                <i class="fas fa-clipboard-list text-indigo-500 text-2xl"></i>
+                <span>Mohon lengkapi data terlebih dahulu</span>
+            </h2>
+
+            {{-- Tampilkan Error Validasi (Jika ada) --}}
+            @if ($errors->any())
+                <div class="bg-red-50 text-red-800 px-6 py-4 rounded-xl mb-6 flex items-start shadow-md border-l-4 border-red-500"
+                    role="alert">
+                    <div class="flex-shrink-0 mr-4 mt-1">
+                        <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-lg mb-2">Terjadi Kesalahan:</p>
+                        <ul class="list-disc list-inside text-sm space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
+
+            <form action="{{ route('diagnosa.storeData') }}" method="POST">
+                @csrf
+
+                {{-- Grid 2 Kolom --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+
+                    {{-- Kolom Kiri --}}
+                    <div>
+                        <div class="mb-4">
+                            <label for="nama_ibu" class="block text-sm font-medium text-slate-700 mb-2">Nama Ibu</label>
+                            <input type="text" id="nama_ibu" name="nama_ibu"
+                                class="block w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                value="{{ old('nama_ibu', Auth::user()->name) }}" required> {{-- Mengisi nama user yg login --}}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="nama_anak" class="block text-sm font-medium text-slate-700 mb-2">Nama Anak</label>
+                            <input type="text" id="nama_anak" name="nama_anak"
+                                class="block w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                value="{{ old('nama_anak') }}" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="usia_anak" class="block text-sm font-medium text-slate-700 mb-2">Usia Anak
+                                (bulan)</label>
+                            <input type="number" id="usia_anak" name="usia_anak"
+                                class="block w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                value="{{ old('usia_anak') }}" min="0" max="60" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="jenis_kelamin" class="block text-sm font-medium text-slate-700 mb-2">Jenis
+                                Kelamin</label>
+                            <select id="jenis_kelamin" name="jenis_kelamin"
+                                class="block w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                required>
+                                <option value="">-- Pilih Jenis Kelamin --</option>
+                                <option value="Laki-laki" {{ old('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>
+                                    Laki-laki</option>
+                                <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>
+                                    Perempuan</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="tanggal_lahir" class="block text-sm font-medium text-slate-700 mb-2">Tanggal Lahir
+                                Anak</label>
+                            <input type="date" id="tanggal_lahir" name="tanggal_lahir"
+                                class="block w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                value="{{ old('tanggal_lahir') }}" required>
+                        </div>
                     </div>
 
-                    <div class="mb-2">
-                        <label for="nama_anak" class="form-label small">Nama Anak</label>
-                        <input type="text" id="nama_anak" name="nama_anak" class="form-control form-control-sm" value="{{ old('nama_anak') }}" required>
-                    </div>
+                    {{-- Kolom Kanan --}}
+                    <div>
+                        <div class="mb-4">
+                            <label for="alamat" class="block text-sm font-medium text-slate-700 mb-2">Alamat</label>
+                            <textarea id="alamat" name="alamat" rows="2"
+                                class="block w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                required>{{ old('alamat') }}</textarea>
+                        </div>
 
-                    <div class="mb-2">
-                        <label for="usia_anak" class="form-label small">Usia Anak (bulan)</label>
-                        <input type="number" id="usia_anak" name="usia_anak" class="form-control form-control-sm" value="{{ old('usia_anak') }}" min="0" max="60" required>
-                    </div>
+                        <div class="mb-4">
+                            <label for="jenis_vaksin" class="block text-sm font-medium text-slate-700 mb-2">Jenis
+                                Vaksin</label>
+                            <input type="text" id="jenis_vaksin" name="jenis_vaksin"
+                                class="block w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                value="{{ old('jenis_vaksin') }}" required>
+                        </div>
 
-                    <div class="mb-2">
-                        <label for="jenis_kelamin" class="form-label small">Jenis Kelamin</label>
-                        <select id="jenis_kelamin" name="jenis_kelamin" class="form-control form-control-sm" required>
-                            <option value="">-- Pilih Jenis Kelamin --</option>
-                            <option value="Laki-laki" {{ old('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                            <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
-                        </select>
-                    </div>
+                        <div class="mb-4">
+                            <label for="tempat_imunisasi" class="block text-sm font-medium text-slate-700 mb-2">Tempat
+                                Imunisasi</label>
+                            <input type="text" id="tempat_imunisasi" name="tempat_imunisasi"
+                                class="block w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                value="{{ old('tempat_imunisasi') }}" required>
+                        </div>
 
-                    <div class="mb-2">
-                        <label for="tanggal_lahir" class="form-label small">Tanggal Lahir Anak</label>
-                        <input type="date" id="tanggal_lahir" name="tanggal_lahir" class="form-control form-control-sm" value="{{ old('tanggal_lahir') }}" required>
+                        <div class="mb-4">
+                            <label for="tanggal_imunisasi" class="block text-sm font-medium text-slate-700 mb-2">Tanggal
+                                Imunisasi</label>
+                            <input type="date" id="tanggal_imunisasi" name="tanggal_imunisasi"
+                                class="block w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                value="{{ old('tanggal_imunisasi') }}" required>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <div class="mb-2">
-                        <label for="alamat" class="form-label small">Alamat</label>
-                        <textarea id="alamat" name="alamat" rows="2" class="form-control form-control-sm" required>{{ old('alamat') }}</textarea>
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="jenis_vaksin" class="form-label small">Jenis Vaksin</label>
-                        <input type="text" id="jenis_vaksin" name="jenis_vaksin" class="form-control form-control-sm" value="{{ old('jenis_vaksin') }}" required>
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="tempat_imunisasi" class="form-label small">Tempat Imunisasi</label>
-                        <input type="text" id="tempat_imunisasi" name="tempat_imunisasi" class="form-control form-control-sm" value="{{ old('tempat_imunisasi') }}" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="tanggal_imunisasi" class="form-label small">Tanggal Imunisasi</label>
-                        <input type="date" id="tanggal_imunisasi" name="tanggal_imunisasi" class="form-control form-control-sm" value="{{ old('tanggal_imunisasi') }}" required>
-                    </div>
+                {{-- Tombol Aksi --}}
+                <div class="mt-8 pt-6 border-t border-slate-200">
+                    <button type="submit"
+                        class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200 font-medium text-lg">
+                        <i class="fas fa-play-circle"></i>
+                        Mulai Diagnosa
+                    </button>
                 </div>
-            </div>
-
-            <button type="submit" class="btn btn-sm btn-primary w-100">
-                <i class="bi bi-play-circle me-1"></i> Mulai Diagnosa
-            </button>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 @endsection

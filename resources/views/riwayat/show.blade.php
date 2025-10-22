@@ -1,253 +1,159 @@
 @extends('layouts.app')
 
+@section('title', 'Detail Riwayat Diagnosa - Sistem Pakar KIPI')
+
 @section('content')
-    <style>
-        body {
-            background-color: #f0f4f8;
-        }
+    {{-- Hapus <style> block dan tag <body> --}}
 
-        .card {
-            background: #fff;
-            padding: 12px 16px;
-            margin: 20px auto;
-            max-width: 480px;
-            /* lebih kecil */
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgb(0 0 0 / 0.1);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 12px;
-            /* lebih kecil */
-            color: #333;
-        }
+    <div class="flex justify-center py-12"> {{-- Container untuk memusatkan card --}}
 
-        h5 {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 4px;
-            text-align: center;
-        }
+        {{-- Card Utama Konten --}}
+        <div class="w-full max-w-3xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-slate-100">
 
-        p.date {
-            font-size: 10px;
-            color: #666;
-            margin-bottom: 12px;
-            text-align: center;
-        }
+            {{-- Header --}}
+            <div class="text-center mb-8 pb-4 border-b border-slate-200">
+                <h2 class="text-2xl font-bold text-slate-800 mb-1">Detail Hasil Diagnosa</h2>
+                <p class="text-md text-slate-500">
+                    Tanggal Diagnosa:
+                    {{ \Carbon\Carbon::parse($riwayat->tanggal)->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                </p>
+            </div>
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 14px;
-        }
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 
-        table thead th {
-            background-color: #eee;
-            padding: 6px 8px;
-            border: 1px solid #ccc;
-            font-weight: 600;
-            font-size: 11px;
-            text-align: center;
-        }
+                {{-- KOLOM KIRI: Data & Imunisasi --}}
+                <div class="space-y-6">
+                    {{-- Card Data Anak --}}
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <h5 class="text-lg font-semibold text-slate-800 p-4 bg-slate-100 border-b border-slate-200">
+                            <i class="fas fa-child mr-2 text-indigo-500"></i> Data Anak
+                        </h5>
+                        {{-- Menggunakan Definition List <dl> agar lebih semantik & rapi --}}
+                        <dl class="divide-y divide-slate-200 text-sm">
+                            <div class="grid grid-cols-3 gap-4 px-4 py-3 bg-slate-50">
+                                <dt class="font-medium text-slate-600">Nama Anak</dt>
+                                <dd class="text-slate-800 col-span-2">{{ $riwayat->nama_anak ?? '-' }}</dd>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 px-4 py-3">
+                                <dt class="font-medium text-slate-600">Jenis Kelamin</dt>
+                                <dd class="text-slate-800 col-span-2">{{ $riwayat->jenis_kelamin ?? '-' }}</dd>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 px-4 py-3 bg-slate-50">
+                                <dt class="font-medium text-slate-600">Tanggal Lahir</dt>
+                                <dd class="text-slate-800 col-span-2">
+                                    {{ $riwayat->tanggal_lahir ? \Carbon\Carbon::parse($riwayat->tanggal_lahir)->locale('id')->isoFormat('D MMMM Y') : '-' }}
+                                </dd>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 px-4 py-3">
+                                <dt class="font-medium text-slate-600">Usia (bln)</dt>
+                                <dd class="text-slate-800 col-span-2">{{ $riwayat->usia_anak ?? '-' }} bln</dd>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 px-4 py-3 bg-slate-50">
+                                <dt class="font-medium text-slate-600">Nama Ibu</dt>
+                                <dd class="text-slate-800 col-span-2">{{ $riwayat->nama_ibu ?? '-' }}</dd>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 px-4 py-3">
+                                <dt class="font-medium text-slate-600">Alamat</dt>
+                                <dd class="text-slate-800 col-span-2">{{ $riwayat->alamat ?? '-' }}</dd>
+                            </div>
+                        </dl>
+                    </div>
 
-        table tbody td {
-            padding: 6px 8px;
-            border: 1px solid #ccc;
-            vertical-align: middle;
-            font-size: 11px;
-            word-break: break-word;
-        }
+                    {{-- Card Data Imunisasi --}}
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <h5 class="text-lg font-semibold text-slate-800 p-4 bg-slate-100 border-b border-slate-200">
+                            <i class="fas fa-syringe mr-2 text-blue-500"></i> Data Imunisasi
+                        </h5>
+                        <dl class="divide-y divide-slate-200 text-sm">
+                            <div class="grid grid-cols-3 gap-4 px-4 py-3 bg-slate-50">
+                                <dt class="font-medium text-slate-600">Jenis Vaksin</dt>
+                                <dd class="text-slate-800 col-span-2">{{ $riwayat->jenis_vaksin ?? '-' }}</dd>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 px-4 py-3">
+                                <dt class="font-medium text-slate-600">Tempat Imunisasi</dt>
+                                <dd class="text-slate-800 col-span-2">{{ $riwayat->tempat_imunisasi ?? '-' }}</dd>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 px-4 py-3 bg-slate-50">
+                                <dt class="font-medium text-slate-600">Tanggal Imunisasi</dt>
+                                <dd class="text-slate-800 col-span-2">
+                                    {{ $riwayat->tanggal_imunisasi ? \Carbon\Carbon::parse($riwayat->tanggal_imunisasi)->locale('id')->isoFormat('D MMMM Y') : '-' }}
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
 
-        table tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
+                {{-- KOLOM KANAN: Gejala & Hasil --}}
+                <div class="space-y-6">
+                    {{-- Card Gejala --}}
+                    <div class="border border-slate-200 rounded-xl">
+                        <h5
+                            class="text-lg font-semibold text-slate-800 p-4 bg-slate-100 border-b border-slate-200 rounded-t-xl">
+                            <i class="fas fa-tasks mr-2 text-amber-500"></i> Gejala yang Dialami
+                        </h5>
+                        <div class="p-4">
+                            @php
+                                $gejalaDipilih = $riwayat->gejalaDipilih
+                                    ->filter(fn($g) => $g->cf_user > 0)
+                                    ->loadMissing('gejala')
+                                    ->values();
+                            @endphp
 
-        table tbody td:first-child {
-            font-weight: normal;
-            /* atau hapus saja property font-weight */
-            width: 40%;
-            white-space: nowrap;
+                            @if ($gejalaDipilih->count() > 0)
+                                <ul class="list-disc list-inside space-y-2 text-sm text-slate-700">
+                                    @foreach ($gejalaDipilih as $gejala)
+                                        <li>{{ $gejala->gejala->nama_gejala ?? ($gejala->kode_gejala ?? 'Gejala tidak diketahui') }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <p class="text-slate-500 text-sm italic">Tidak ada gejala yang dipilih.</p>
+                            @endif
+                        </div>
+                    </div>
 
-        }
+                    {{-- Card Hasil Diagnosa --}}
+                    <div
+                        class="border-2 
+                    @if (strtolower($riwayat->jenis_kipi) === 'berat') border-red-300 bg-red-50
+                    @elseif(strtolower($riwayat->jenis_kipi) === 'ringan (reaksi sistemik)') border-amber-300 bg-amber-50
+                    @else border-blue-300 bg-blue-50 @endif
+                    rounded-xl p-6">
 
-        /* Untuk kolom diagnosis dan saran */
-        .result-percentage {
-            color: #2e7d32;
-            /* hijau */
-            font-weight: 700;
-            font-size: 22px;
-            text-align: center;
-            margin-bottom: 3px;
-        }
+                        <h5 class="text-lg font-semibold text-slate-900 mb-4">
+                            <i class="fas fa-poll-h mr-2"></i> Hasil Diagnosa Sistem
+                        </h5>
 
-        .result-text {
-            text-align: center;
-            font-size: 10px;
-            color: #555;
-        }
+                        <div class="text-center mb-4">
+                            <span
+                                class="text-5xl font-bold 
+                            @if (strtolower($riwayat->jenis_kipi) === 'berat') text-red-600
+                            @elseif(strtolower($riwayat->jenis_kipi) === 'ringan (reaksi sistemik)') text-amber-600
+                            @else text-blue-600 @endif">
+                                {{ number_format($riwayat->nilai_cf * 100, 0) }}%
+                            </span>
+                            <p class="font-semibold text-slate-800 text-lg">
+                                Kemungkinan KIPI {{ $riwayat->jenis_kipi ?? '-' }}
+                            </p>
+                        </div>
 
-        .btn-group {
-            text-align: center;
+                        <h6 class="font-semibold text-slate-800 mb-1">Saran Penanganan:</h6>
+                        <p class="text-sm text-slate-700 leading-relaxed">{{ $riwayat->saran ?? '-' }}</p>
+                    </div>
+                </div>
+            </div>
 
-        }
-
-        .btn {
-            font-size: 11px;
-            padding: 6px 14px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            margin: 0 6px;
-            min-width: 100px;
-            text-transform: capitalize;
-        }
-
-        .btn-primary {
-            background-color: #1e88e5;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #1565c0;
-        }
-
-        .btn-success {
-            background-color: #43a047;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background-color: #2e7d32;
-        }
-
-        .btn-secondary {
-            /* Tambahkan style untuk tombol kembali */
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-    </style>
-
-    <div class="card">
-        <h5>Hasil Diagnosa KIPI</h5>
-        <p class="date">{{ \Carbon\Carbon::parse($riwayat->tanggal)->locale('id')->isoFormat('D MMMM Y') }}</p>
-
-        {{-- Data Anak --}}
-        <table>
-            <thead>
-                <tr>
-                    <th colspan="4">Data Anak</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Nama Anak</strong></td>
-                    <td>{{ $riwayat->nama_anak ?? '-' }}</td>
-                    <td><strong>Jenis Kelamin</strong></td>
-                    <td>{{ $riwayat->jenis_kelamin ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Tanggal Lahir</strong></td>
-                    <td>
-                        @if ($riwayat->tanggal_lahir)
-                            {{ \Carbon\Carbon::parse($riwayat->tanggal_lahir)->locale('id')->isoFormat('D MMM Y') }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td><strong>Usia (bln)</strong></td>
-                    <td>{{ $riwayat->usia_anak ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Nama Ibu</strong></td>
-                    <td>{{ $riwayat->nama_ibu ?? '-' }}</td>
-                    <td><strong>Vaksin</strong></td>
-                    <td>{{ $riwayat->jenis_vaksin ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Tempat imunisasi</strong></td>
-                    <td>{{ $riwayat->tempat_imunisasi ?? '-' }}</td>
-                    <td><strong>Tanggal Imunisasi</strong></td>
-                    <td>
-                        @if ($riwayat->tanggal_imunisasi)
-                            {{ \Carbon\Carbon::parse($riwayat->tanggal_imunisasi)->locale('id')->isoFormat('D MMM Y') }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>Alamat</strong></td>
-                    <td colspan="3">{{ $riwayat->alamat ?? '-' }}</td>
-                </tr>
-            </tbody>
-        </table>
-
-
-        {{-- Gejala yang dialami --}}
-        <table>
-            <thead>
-                <tr>
-                    <th colspan="2">Gejala yang Dialami</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    // Pastikan relasi 'gejala' sudah di-load jika belum
-                    // Jika Anda menggunakan with('gejalaDipilih.gejala') di controller, ini tidak perlu
-                    $gejalaDipilih = $riwayat->gejalaDipilih
-                        ->filter(fn($g) => $g->cf_user > 0)
-                        ->loadMissing('gejala')
-                        ->values();
-                    $count = $gejalaDipilih->count();
-                @endphp
-
-                @if ($count > 0)
-                    @for ($i = 0; $i < $count; $i += 2)
-                        <tr>
-                            <td>{{ $gejalaDipilih[$i]->gejala->nama_gejala ?? ($gejalaDipilih[$i]->kode_gejala ?? '') }}
-                            </td>
-                            <td>
-                                @if (isset($gejalaDipilih[$i + 1]))
-                                    {{ $gejalaDipilih[$i + 1]->gejala->nama_gejala ?? ($gejalaDipilih[$i + 1]->kode_gejala ?? '') }}
-                                @else
-                                    &nbsp;
-                                @endif
-                            </td>
-                        </tr>
-                    @endfor
-                @else
-                    <tr>
-                        <td colspan="2" class="text-center">- Tidak ada gejala yang dipilih -</td>
-                    </tr>
-                @endif
-            </tbody>
-        </table>
-
-        {{-- Hasil Diagnosa --}}
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 35%;">Hasil Diagnosa</th>
-                    <th>Saran</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div class="result-percentage">{{ number_format($riwayat->nilai_cf * 100, 0) }}%</div>
-                        <div class="result-text">Kemungkinan KIPI <strong>{{ $riwayat->jenis_kipi }}</strong></div>
-                    </td>
-                    <td style="font-size: 11px;">{{ $riwayat->saran ?? '-' }}</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="btn-group">
-            <a href="{{ route('riwayat.index') }}" class="btn btn-secondary">kembali</a>
-            <a href="{{ route('riwayat.cetak', $riwayat->id_diagnosa) }}" target="_blank" class="btn btn-primary">cetak</a>
+            {{-- Tombol Aksi --}}
+            <div class="flex justify-center items-center gap-4 mt-8 pt-6 border-t border-slate-200">
+                <a href="{{ route('riwayat.index') }}"
+                    class="px-6 py-3 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-100 transition-colors duration-200">
+                    Kembali ke Riwayat
+                </a>
+                <a href="{{ route('riwayat.cetak', $riwayat->id_diagnosa) }}" target="_blank"
+                    class="px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                    <i class="fas fa-print mr-2"></i> Cetak PDF
+                </a>
+            </div>
         </div>
     </div>
 @endsection

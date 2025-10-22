@@ -1,173 +1,104 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Sistem Pakar KIPI</title>
+    <title>@yield('title', 'Sistem Pakar KIPI')</title>
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <!-- Font Awesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Segoe UI', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        'slate': tailwind.colors.slate,
+                        'indigo': tailwind.colors.indigo,
+                    }
+                }
+            }
+        }
+    </script>
+
     @yield('styles')
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background-color: #f5f9ff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Navbar */
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgb(21, 140, 156);
-            padding: 6px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .nav-left {
-            font-weight: bold;
-            font-size: 18px;
-            color: white;
-        }
-
-        .nav-right a,
-        .nav-right button {
-            color: white;
-            font-weight: 500;
-            font-size: 14px;
-            text-decoration: none;
-            background: none;
-            border: none;
-        }
-
-        .nav-right a:hover {
-            color: #b2e0e5;
-        }
-
-        /* Main */
-        main {
-            margin-top: 80px; /* sesuaikan dengan tinggi nav */
-            padding: 20px;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .container-dashboard {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 20px;
-                flex-wrap: wrap; /* izinkan teks turun baris jika terlalu panjang */
-            }
-
-            .welcome {
-                flex: 1 1 auto;      /* fleksibel */
-                min-width: 200px;    /* jangan terlalu kecil */
-                white-space: normal; /* izinkan teks membungkus */
-            }
-
-
-            .illustration {
-                flex: 1;
-                display: flex;
-                justify-content: flex-end; /* gambar ke kanan */
-            }
-
-            .illustration img {
-                max-width: 350px;
-                height: auto;
-            }
-
-
-        /* Menu */
-        .menu {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-
-        .menu a {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 200px;
-            padding: 10px 6px;
-            background: white;
-            border: 2px solid #2563eb;
-            border-radius: 15px;
-            text-decoration: none;
-            color: #222;
-            font-weight: 600;
-            text-align: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-        }
-
-        .menu a:hover {
-            background-color: #2563eb;
-            color: white;
-            transform: translateY(-5px);
-        }
-
-        .menu-icon {
-            font-size: 40px;
-            margin-bottom: 12px;
-        }
-
-        /* Footer */
-        footer {
-            background-color: rgb(21, 140, 156);
-            color: white;
-            padding: 10px 0;
-            text-align: center;
-            font-size: 14px;
-            margin-top: auto;
-        }
-    </style>
 </head>
-@yield('scripts')
-<body>
 
-<nav>
-    <div class="nav-left">
-        Sistem Pakar KIPI
-    </div>
-    <<div class="nav-right">
-    @auth
-        <span class="me-3 text-white">{{ Auth::user()->name }}</span>
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: inline;">
-            @csrf
-            <button type="submit" class="btn btn-sm btn-light">Logout</button>
-        </form>
-    @endauth
-</div>
+<body class="bg-slate-100 font-sans flex flex-col min-h-screen">
 
-</nav>
+    <nav class="bg-white shadow-md fixed w-full z-30">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
 
-<main>
-    @yield('content')
-</main>
+                {{-- Logo/Judul Kiri --}}
+                <div class="flex-shrink-0">
+                    <a href="{{ url('/') }}" class="text-2xl font-bold text-indigo-700">
+                        Sistem Pakar KIPI
+                    </a>
+                </div>
 
-<footer>
-    Sistem Pakar Diagnosa Gejala KIPI &copy; 2025
-</footer>
+                {{-- Menu Kanan --}}
+                <div class="flex items-center gap-4">
+                    @auth
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open"
+                                class="flex items-center gap-3 text-left p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                                <div
+                                    class="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold text-sm">
+                                    {{ substr(Auth::user()->name, 0, 1) }}
+                                </div>
+                                <span class="hidden md:inline font-medium text-slate-700">{{ Auth::user()->name }}</span>
+                                <i class="fas fa-chevron-down text-slate-500 text-xs transition-transform"
+                                    :class="{ 'rotate-180': open }"></i>
+                            </button>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                            <div x-show="open" @click.away="open = false" x-transition
+                                class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-40 origin-top-right overflow-hidden border border-slate-200">
+
+                                <div class="px-4 py-3 border-b border-slate-200">
+                                    <p class="text-sm font-semibold text-slate-800">{{ Auth::user()->name }}</p>
+                                    <p class="text-xs text-slate-500">{{ Auth::user()->email }}</p>
+                                </div>
+
+                                <a href="{{ route('logout') }}"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                                    class="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                    <i class="fas fa-sign-out-alt fa-fw w-5 text-center"></i>
+                                    <span>Logout</span>
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                                    @csrf
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}"
+                            class="text-sm font-medium text-slate-700 hover:text-indigo-600">Login</a>
+                        <a href="{{ route('register') }}"
+                            class="text-sm font-medium text-white bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-700">Register</a>
+                    @endauth
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="w-full max-w-7xl mx-auto pt-28 pb-10 px-4 sm:px-6 lg:px-8 flex-1">
+        @yield('content')
+    </main>
+
+    <footer class="bg-white text-center p-6 text-sm text-slate-500 mt-auto border-t border-slate-200">
+        Sistem Pakar Diagnosa Gejala KIPI &copy; {{ date('Y') }}
+    </footer>
+
+    @yield('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> {{-- Masih ada script BS, bisa dihapus jika tidak ada komponen BS --}}
 </body>
+
 </html>

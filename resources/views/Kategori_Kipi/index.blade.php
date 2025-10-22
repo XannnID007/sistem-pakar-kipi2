@@ -1,66 +1,105 @@
 @extends('layouts.pakar')
 
-@section('content')
-<div class="container mb-3">
-    <h1>Kategori KIPI</h1>
+@section('page_title', 'Kategori KIPI')
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+@section('content')
+
+    {{-- Pesan sukses --}}
+    @if (session('success'))
+        <div class="relative bg-green-50 text-green-800 px-6 py-4 rounded-xl mb-8 flex items-center shadow-md border-l-4 border-green-500"
+            role="alert">
+            <div class="flex-shrink-0 mr-4">
+                <i class="fas fa-check-circle text-2xl text-green-600"></i>
+            </div>
+            <div class="flex-grow">
+                <span class="font-semibold">{{ session('success') }}</span>
+            </div>
+            <button type="button" class="absolute top-3 right-3 text-green-700 hover:text-green-900 transition-colors"
+                onclick="this.parentElement.style.display='none'">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
     @endif
 
-    <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
-    <a href="{{route ('pakar.kategori_kipi.create')}}" class="btn btn-primary mb-3"> <i class="fas fa-plus fa-lg"></i> Tambah Data</a>
-    {{-- Form pencarian --}}
-        <form method="GET" action="{{ route('pakar.kategori_kipi.index') }}" class="d-flex gap-2" style="max-width: 400px; width: 100%;">
-            <input 
-                type="text" 
-                name="search" 
-                placeholder="Cari Kategori kipi" 
-                value="{{ request('search') }}"
-                class="form-control"
-            >
-            <button type="submit" class="btn btn-primary">
-                Cari
-            </button>
-        </form>
+    {{-- Main container untuk tabel --}}
+    <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+
+        {{-- Header untuk Aksi (Tambah & Cari) --}}
+        <div class="p-6 md:p-8 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
+            <a href="{{ route('pakar.kategori_kipi.create') }}"
+                class="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 w-full md:w-auto text-center justify-center">
+                <i class="fas fa-plus"></i>
+                <span>Tambah Kategori</span>
+            </a>
+
+            <form method="GET" action="{{ route('pakar.kategori_kipi.index') }}"
+                class="relative w-full md:max-w-xs group">
+                <input type="text" name="search" placeholder="Cari Kategori kipi..." value="{{ request('search') }}"
+                    class="block w-full pl-12 pr-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-0 focus:border-indigo-500 transition-all duration-300 text-slate-800 placeholder-slate-400 group-hover:border-indigo-400">
+                <i
+                    class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors"></i>
+            </form>
+        </div>
+
+        {{-- Tabel daftar kategori --}}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-100">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Kode
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Jenis
+                            KIPI</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Saran
+                            Penanganan</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Aksi
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($kategori as $item)
+                        <tr class="group hover:bg-slate-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
+                                {{ $item->kode_kategori_kipi }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                                {{ $item->jenis_kipi }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-slate-700 min-w-[300px]">
+                                {{ $item->saran }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex justify-center items-center gap-4">
+                                    <a href="{{ route('pakar.kategori_kipi.edit', $item->kode_kategori_kipi) }}"
+                                        class="text-indigo-500 hover:text-indigo-700 transition-colors duration-200"
+                                        title="Edit Kategori">
+                                        <i class="fas fa-edit text-lg"></i>
+                                    </a>
+                                    <form action="{{ route('pakar.kategori_kipi.destroy', $item->kode_kategori_kipi) }}"
+                                        method="POST" onsubmit="return confirm('Yakin ingin hapus?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="text-red-500 hover:text-red-700 transition-colors duration-200"
+                                            title="Hapus Kategori">
+                                            <i class="fas fa-trash-alt text-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="px-6 py-12 text-center text-slate-500 bg-slate-50">
+                                <i class="fas fa-box-open fa-4x mb-4 text-slate-300"></i>
+                                <p class="text-xl font-medium">Data kategori tidak ditemukan.</p>
+                                <p class="text-md mt-2">Belum ada kategori yang ditambahkan atau tidak sesuai dengan
+                                    pencarian Anda.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
-
-
-
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Kode </th>
-                <th>Jenis KIPI</th>
-                <th>Saran Penanganan</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($kategori as $item)
-                <tr>
-                    <td>{{ $item->kode_kategori_kipi }}</td>
-                    <td>{{ $item->jenis_kipi }}</td>
-                    <td>{{ $item->saran }}</td>
-                    <td>
-    <div class="d-flex gap-2">
-        <a href="{{ route('pakar.kategori_kipi.edit', $item->kode_kategori_kipi) }}" class="btn btn-warning btn-sm">
-            <i class="fas fa-edit"></i> Edit
-        </a>
-
-        <form action="{{ route('pakar.kategori_kipi.destroy', $item->kode_kategori_kipi) }}" method="POST" onsubmit="return confirm('Yakin ingin hapus?')">
-            @csrf
-            @method('DELETE')
-            <button class="btn btn-danger btn-sm">
-                <i class="fas fa-trash-alt"></i> Hapus
-            </button>
-        </form>
-    </div>
-</td>
-
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
 @endsection

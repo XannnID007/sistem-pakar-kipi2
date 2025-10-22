@@ -34,20 +34,17 @@ class PakarController extends Controller
     // Dashboard
     public function dashboard()
     {
-        // DIUBAH: 'bidan_desa' menjadi 'pakar'
+        // ... (semua $jumlah... Anda tetap sama) ...
         $jumlahPakar = User::where('role', 'pakar')->count();
         $jumlahUser = User::where('role', 'orang_tua')->count();
         $jumlahGejala = Gejala::count();
         $jumlahKategori = KategoriKipi::count();
         $jumlahAturan = Aturan::count();
-
-        // DIUBAH: Typo 'Sistemik' menjadi 'sistemik' (lowercase) agar konsisten
         $jumlahKipi = Diagnosa::whereIn('jenis_kipi', [
             'Ringan (reaksi lokal)',
             'Ringan (reaksi sistemik)',
             'Berat'
         ])->count();
-
         $jumlahKipiBeratBaru = Diagnosa::where('jenis_kipi', 'Berat')
             ->where('is_read', false)
             ->count();
@@ -56,8 +53,12 @@ class PakarController extends Controller
         $kasusRinganSistemik = Diagnosa::where('jenis_kipi', 'Ringan (reaksi sistemik)')->count();
         $kasusBerat = Diagnosa::where('jenis_kipi', 'Berat')->count();
 
-        $kasusTerbaru = Diagnosa::latest()->take(5)->get();
-
+        // --- BARIS YANG DIPERBARUI ---
+        $kasusTerbaru = Diagnosa::with('user')     // Tambahkan ini
+            ->latest('tanggal') // Tentukan urutan by tanggal
+            ->take(5)
+            ->get();
+        // -----------------------------
 
         return view('pakar.dashboard', compact(
             'jumlahPakar',
@@ -71,7 +72,7 @@ class PakarController extends Controller
             'kasusRinganLokal',
             'kasusRinganSistemik',
             'kasusBerat',
-            'kasusTerbaru'
+            'kasusTerbaru' // <--- Data ini sudah siap dipakai
         ));
     }
 

@@ -1,63 +1,99 @@
 @extends('layouts.pakar')
 
+@section('page_title', 'Data Gejala')
+
 @section('content')
-    <div class="container mb-3">
-        <h1>Gejala</h1>
 
-        {{-- Pesan sukses --}}
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+    {{-- Pesan sukses --}}
+    @if (session('success'))
+        <div class="relative bg-green-50 text-green-800 px-6 py-4 rounded-xl mb-8 flex items-center shadow-md border-l-4 border-green-500"
+            role="alert">
+            <div class="flex-shrink-0 mr-4">
+                <i class="fas fa-check-circle text-2xl text-green-600"></i>
+            </div>
+            <div class="flex-grow">
+                <span class="font-semibold">{{ session('success') }}</span>
+            </div>
+            <button type="button" class="absolute top-3 right-3 text-green-700 hover:text-green-900 transition-colors"
+                onclick="this.parentElement.style.display='none'">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+    @endif
 
-        {{-- Tombol tambah gejala dan form pencarian --}}
-        <div class="d-flex justify-content-between align-items-center mt-4 mb-3 flex-wrap gap-2">
-            <a href="{{ route('pakar.gejala.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Tambah Data
+    {{-- Main container untuk tabel --}}
+    <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+
+        {{-- Header untuk Aksi (Tambah & Cari) --}}
+        <div class="p-6 md:p-8 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
+            <a href="{{ route('pakar.gejala.create') }}"
+                class="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 w-full md:w-auto text-center justify-center">
+                <i class="fas fa-plus"></i>
+                <span>Tambah Gejala Baru</span>
             </a>
 
-            <form method="GET" action="{{ route('pakar.gejala.index') }}" class="d-flex gap-2"
-                style="max-width: 400px; width: 100%;">
-                <input type="text" name="search" placeholder="Cari gejala" value="{{ request('search') }}"
-                    class="form-control">
-                <button type="submit" class="btn btn-primary">
-                    Cari
-                </button>
+            <form method="GET" action="{{ route('pakar.gejala.index') }}" class="relative w-full md:max-w-xs group">
+                <input type="text" name="search" placeholder="Cari gejala..." value="{{ request('search') }}"
+                    class="block w-full pl-12 pr-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-0 focus:border-indigo-500 transition-all duration-300 text-slate-800 placeholder-slate-400 group-hover:border-indigo-400">
+                <i
+                    class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors"></i>
             </form>
         </div>
 
         {{-- Tabel daftar gejala --}}
-        <table class="table table-bordered table-sm">
-            <thead>
-                <tr>
-                    <th>Kode</th>
-                    <th>Nama Gejala</th>
-                    <th class="text-center">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($gejalas as $gejala)
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-100">
                     <tr>
-                        <td>{{ $gejala->kode_gejala }}</td>
-                        <td>{{ $gejala->nama_gejala }}</td>
-                        <td class="text-center text-nowrap">
-                            <div class="d-flex justify-content-center gap-1">
-                                <a href="{{ route('pakar.gejala.edit', $gejala->kode_gejala) }}"
-                                    class="btn btn-warning btn-sm px-2 py-1">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                                <form action="{{ route('pakar.gejala.destroy', $gejala->kode_gejala) }}" method="POST"
-                                    onsubmit="return confirm('Yakin ingin menghapus gejala ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm px-2 py-1">
-                                        <i class="fas fa-trash-alt"></i> Hapus
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Kode
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Nama
+                            Gejala</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Aksi
+                        </th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse ($gejalas as $gejala)
+                        <tr class="group hover:bg-slate-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
+                                {{ $gejala->kode_gejala }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-slate-700">
+                                {{ $gejala->nama_gejala }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex justify-center items-center gap-4">
+                                    <a href="{{ route('pakar.gejala.edit', $gejala->kode_gejala) }}"
+                                        class="text-indigo-500 hover:text-indigo-700 transition-colors duration-200"
+                                        title="Edit Gejala">
+                                        <i class="fas fa-edit text-lg"></i>
+                                    </a>
+                                    <form action="{{ route('pakar.gejala.destroy', $gejala->kode_gejala) }}" method="POST"
+                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus gejala ini? Tindakan ini tidak dapat dibatalkan.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="text-red-500 hover:text-red-700 transition-colors duration-200"
+                                            title="Hapus Gejala">
+                                            <i class="fas fa-trash-alt text-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3" class="px-6 py-12 text-center text-slate-500 bg-slate-50">
+                                <i class="fas fa-box-open fa-4x mb-4 text-slate-300"></i>
+                                <p class="text-xl font-medium">Data gejala tidak ditemukan.</p>
+                                <p class="text-md mt-2">Belum ada gejala yang ditambahkan atau tidak sesuai dengan pencarian
+                                    Anda.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 @endsection
