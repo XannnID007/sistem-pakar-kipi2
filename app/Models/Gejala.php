@@ -1,15 +1,19 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Gejala extends Model
 {
+    // CATATAN: Model ini TIDAK pakai HasRandomId, karena ID-nya ('G001')
+    // Anda masukkan manual, bukan acak. Pengaturan Anda sudah benar.
+
     protected $table = 'gejalas';
 
-    protected $primaryKey = 'kode_gejala';  // <-- tambahkan ini
-    public $incrementing = false;            // <-- tambahkan ini karena bukan auto-increment
-    protected $keyType = 'string';           // <-- tambahkan ini karena primary key berupa string
+    protected $primaryKey = 'kode_gejala';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = ['kode_gejala', 'nama_gejala'];
 

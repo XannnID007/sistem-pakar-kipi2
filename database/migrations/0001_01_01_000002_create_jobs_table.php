@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('jobs', function (Blueprint $table) {
-            $table->id();
+            $table->id(); // Sesuai SQL dump, pakai id() biasa
             $table->string('queue')->index();
             $table->longText('payload');
             $table->unsignedTinyInteger('attempts');

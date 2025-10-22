@@ -6,13 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class KategoriKipi extends Model
 {
-    protected $table = 'kategori_kipis'; // pastikan nama tabel benar
+    // CATATAN: Model ini juga TIDAK pakai HasRandomId, karena ID-nya ('K001')
+    // Anda masukkan manual. Pengaturan Anda sudah benar.
+
+    protected $table = 'kategori_kipis';
 
     protected $primaryKey = 'kode_kategori_kipi';
     public $incrementing = false;
     protected $keyType = 'string';
 
-    public $timestamps = false; // jika tabel tidak ada created_at/updated_at
+    // Anda menggunakan 'created_at'/'updated_at' di Seeder, jadi jangan set 'false'
+    // public $timestamps = false; 
 
     protected $fillable = ['kode_kategori_kipi', 'jenis_kipi', 'saran'];
 }

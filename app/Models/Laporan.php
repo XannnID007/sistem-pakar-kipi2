@@ -2,23 +2,31 @@
 
 namespace App\Models;
 
+use App\Traits\HasRandomId; // 1. Import Trait
 use Illuminate\Database\Eloquent\Model;
 
 class Laporan extends Model
 {
-    protected $table = 'laporan';
+    use HasRandomId; // 2. Gunakan Trait
 
-    protected $primaryKey = 'id_laporan'; // Tambahkan ini
+    protected $table = 'laporan';
+    protected $primaryKey = 'id_laporan'; // 3. Primary key sudah benar
 
     protected $fillable = [
-       'id_diagnosa',
-       'jenis_laporan',
-       'tanggal_laporan',
-       'file_path',
-       'nama_file',
+        'id_diagnosa', // 4. Foreign key sudah benar
+        'jenis_laporan',
+        'tanggal_laporan',
+        'file_path',
+        'nama_file',
     ];
 
     protected $casts = [
-        'tanggal_laporan' => 'date',  // Koreksi: pakai tanggal_laporan bukan 'periode'
+        'tanggal_laporan' => 'date',
     ];
+
+    // Relasi ke Diagnosa
+    public function diagnosa()
+    {
+        return $this->belongsTo(Diagnosa::class, 'id_diagnosa', 'id_diagnosa');
+    }
 }

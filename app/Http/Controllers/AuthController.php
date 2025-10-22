@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str; 
+use Illuminate\Support\Str;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -27,6 +27,7 @@ class AuthController extends Controller
         ]);
 
         // Set role default untuk pengguna baru (orang tua)
+        // Trait HasRandomId akan otomatis mengisi 'id_user'
         User::create([
             'name'     => $request->name,
             'email'    => $request->email,
@@ -56,10 +57,11 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            // Hanya 2 role: bidan_desa & orang_tua
-            if ($user->role === 'bidan_desa') {
+            // DIUBAH: 'bidan_desa' menjadi 'pakar'
+            if ($user->role === 'pakar') {
                 return redirect()->route('pakar.dashboard');
-            } else { 
+            } else {
+                // Role lainnya (orang_tua)
                 return redirect()->route('dashboard.user');
             }
         }

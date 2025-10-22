@@ -2,9 +2,15 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB; // Masih dipakai untuk truncate tabel bawaan
+
+// Import model untuk truncate (opsional, bisa pakai DB::table juga)
+use App\Models\User;
+use App\Models\KategoriKipi;
+use App\Models\Gejala;
+use App\Models\Aturan;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,15 +19,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(GejalaSeeder::class);
-        $this->call(KategoriKipiSeeder::class);
+        Schema::disableForeignKeyConstraints();
 
+        // Truncate tabel (kosongkan)
+        // Hanya tabel yang akan di-seed
+        Aturan::truncate();
+        Gejala::truncate();
+        KategoriKipi::truncate();
+        User::truncate();
+        DB::table('password_resets')->truncate(); // Tetap kosongkan ini
 
-        // User::factory(10)->create();
+        // HAPUS: Truncate untuk diagnosa, gejala_dipilih, laporan
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        Schema::enableForeignKeyConstraints();
+
+        // Panggil seeder individual
+        $this->call([
+            KategoriKipiSeeder::class,
+            GejalaSeeder::class,
+            AturanSeeder::class,
+            UserSeeder::class,
+            // HAPUS: DiagnosaSeeder::class
         ]);
     }
 }

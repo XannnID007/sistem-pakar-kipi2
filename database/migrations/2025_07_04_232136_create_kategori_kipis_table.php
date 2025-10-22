@@ -8,19 +8,14 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('kategori_kipis', function (Blueprint $table) {
-            $table->id();
-            $table->string('kode')->unique();
-            $table->string('jenis_kipi');
+            $table->string('kode_kategori_kipi', 4)->primary();
+            $table->string('jenis_kipi', 25);
             $table->text('saran');
             $table->timestamps();
         });
     }
-
     public function down(): void
     {
         Schema::dropIfExists('kategori_kipis');
     }
 };
-
-
-

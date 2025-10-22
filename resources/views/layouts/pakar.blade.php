@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>@yield('title', 'Sistem Pakar KIPI')</title>
@@ -43,7 +44,8 @@
             text-decoration: none;
         }
 
-        .sidebar a:hover, .sidebar a.active {
+        .sidebar a:hover,
+        .sidebar a.active {
             background-color: #1f2d3d;
         }
 
@@ -102,84 +104,84 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="wrapper {{ Auth::check() && Auth::user()->role == 'bidan_desa' ? 'with-sidebar' : '' }}">
-    
-    @auth
-        @if(Auth::user()->role == 'bidan_desa')
-        <div class="sidebar">
-        <h4></h4>
-        <h4></h4>
-        <a href="{{ url('dashboard/pakar') }}" 
-   class="{{ request()->is('dashboard/pakar') ? 'active' : '' }}">
-   <i class="fas fa-home"></i> Dashboard
-</a>
+    <div class="wrapper {{ Auth::check() && Auth::user()->role == 'pakar' ? 'with-sidebar' : '' }}">
 
-<a href="{{ route('pakar.gejala.index') }}" 
-   class="{{ request()->routeIs('pakar.gejala.*') ? 'active' : '' }}">
-   <i class="fas fa-stethoscope"></i> Gejala
-</a>
+        @auth
+            @if (Auth::user()->role == 'pakar')
+                <div class="sidebar">
+                    <h4></h4>
+                    <h4></h4>
+                    <a href="{{ url('dashboard/pakar') }}" class="{{ request()->is('dashboard/pakar') ? 'active' : '' }}">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
 
-<a href="{{ route('pakar.kategori_kipi.index') }}" 
-   class="{{ request()->routeIs('pakar.kategori_kipi.*') ? 'active' : '' }}">
-   <i class="fas fa-layer-group"></i> Kategori KIPI
-</a>
+                    <a href="{{ route('pakar.gejala.index') }}"
+                        class="{{ request()->routeIs('pakar.gejala.*') ? 'active' : '' }}">
+                        <i class="fas fa-stethoscope"></i> Gejala
+                    </a>
 
-<a href="{{ route('pakar.aturan.index') }}" 
-   class="{{ request()->routeIs('pakar.aturan.*') ? 'active' : '' }}">
-   <i class="fas fa-book-medical"></i> Aturan 
+                    <a href="{{ route('pakar.kategori_kipi.index') }}"
+                        class="{{ request()->routeIs('pakar.kategori_kipi.*') ? 'active' : '' }}">
+                        <i class="fas fa-layer-group"></i> Kategori KIPI
+                    </a>
 
-</a>
+                    <a href="{{ route('pakar.aturan.index') }}"
+                        class="{{ request()->routeIs('pakar.aturan.*') ? 'active' : '' }}">
+                        <i class="fas fa-book-medical"></i> Aturan
 
-<a href="{{ route('pakar.riwayat.kipi') }}" 
-   class="{{ request()->routeIs('pakar.riwayat.*') ? 'active' : '' }}">
-   <i class="fas fa-clipboard-list"></i> Data Diagnosa
-</a>
+                    </a>
 
-<a href="{{ route('laporan.index') }}" 
-   class="{{ request()->routeIs('laporan.*') ? 'active' : '' }}">
-   <i class="fas fa-clipboard-list"></i> Laporan
-</a>
+                    <a href="{{ route('pakar.riwayat.kipi') }}"
+                        class="{{ request()->routeIs('pakar.riwayat.*') ? 'active' : '' }}">
+                        <i class="fas fa-clipboard-list"></i> Data Diagnosa
+                    </a>
 
-            <a href="{{ route('logout') }}"
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                @csrf
-            </form>
+                    <a href="{{ route('laporan.index') }}" class="{{ request()->routeIs('laporan.*') ? 'active' : '' }}">
+                        <i class="fas fa-clipboard-list"></i> Laporan
+                    </a>
+
+                    <a href="{{ route('logout') }}"
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                </div>
+            @endif
+        @endauth
+
+        {{-- ... bagian atas tetap sama --}}
+
+        <div class="main-content">
+            <div class="topbar d-flex justify-content-between align-items-center px-3 py-2">
+                <div><strong>Sistem Pakar KIPI</strong></div>
+
+                <div class="d-flex align-items-center gap-3">
+                    {{-- Hapus lonceng notifikasi --}}
+                    {{-- Nama User --}}
+                    @auth
+                        <span>{{ Auth::user()->name }}</span>
+                    @else
+                        <a href="{{ route('login') }}">Login</a>
+                    @endauth
+                </div>
+            </div>
+
+            <div class="content">
+                @yield('content')
+            </div>
+
+            <footer>
+                Sistem Pakar Diagnosa Gejala KIPI &copy; 2025
+            </footer>
         </div>
-        @endif
-    @endauth
 
-    {{-- ... bagian atas tetap sama --}}
-
-<div class="main-content">
-    <div class="topbar d-flex justify-content-between align-items-center px-3 py-2">
-        <div><strong>Sistem Pakar KIPI</strong></div>
-
-        <div class="d-flex align-items-center gap-3">
-            {{-- Hapus lonceng notifikasi --}}
-            {{-- Nama User --}}
-            @auth
-                <span>{{ Auth::user()->name }}</span>
-            @else
-                <a href="{{ route('login') }}">Login</a>
-            @endauth
-        </div>
     </div>
-
-    <div class="content">
-        @yield('content')
-    </div>
-
-    <footer>
-        Sistem Pakar Diagnosa Gejala KIPI &copy; 2025
-    </footer>
-</div>
-
-</div>
 
 </body>
+
 </html>

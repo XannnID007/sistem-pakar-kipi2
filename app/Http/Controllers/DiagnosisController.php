@@ -22,17 +22,18 @@ class DiagnosisController extends Controller
     public function storeData(Request $request)
     {
         $request->validate([
-            'nama_ibu'         => 'required|string|max:100',
-            'nama_anak'        => 'required|string|max:100',
-            'usia_anak'        => 'required|integer|min:0|max:60',
-            'jenis_kelamin'    => 'required|in:Laki-laki,Perempuan',
-            'tanggal_lahir'    => 'required|date',
-            'alamat'           => 'required|string|max:50',
-            'jenis_vaksin'     => 'required|string|max:100',
-            'tempat_imunisasi' => 'required|string|max:100', // ✅ diperbaiki
-            'tanggal_imunisasi'=> 'required|date',
+            'nama_ibu'          => 'required|string|max:100',
+            'nama_anak'         => 'required|string|max:100',
+            'usia_anak'         => 'required|integer|min:0|max:60',
+            'jenis_kelamin'     => 'required|in:Laki-laki,Perempuan',
+            'tanggal_lahir'     => 'required|date',
+            'alamat'            => 'required|string|max:50',
+            'jenis_vaksin'      => 'required|string|max:100',
+            'tempat_imunisasi'  => 'required|string|max:100',
+            'tanggal_imunisasi' => 'required|date',
         ]);
 
+        // Logika ini tidak berubah
         session($request->only([
             'nama_ibu',
             'nama_anak',
@@ -51,6 +52,7 @@ class DiagnosisController extends Controller
     // Menampilkan form gejala
     public function showGejalaForm()
     {
+        // Logika ini tidak berubah
         $gejalas = Gejala::all();
         return view('user.diagnosa.gejala_form', compact('gejalas'));
     }
@@ -69,7 +71,8 @@ class DiagnosisController extends Controller
         try {
             // Simpan data diagnosa
             $diagnosa = Diagnosa::create([
-                'user_id'           => auth()->id(),
+                // DIUBAH: 'user_id' menjadi 'id_user' (sesuai Model)
+                'id_user'           => auth()->id(),
                 'nama_ibu'          => session('nama_ibu'),
                 'nama_anak'         => session('nama_anak'),
                 'usia_anak'         => session('usia_anak'),
@@ -80,24 +83,30 @@ class DiagnosisController extends Controller
                 'tempat_imunisasi'  => session('tempat_imunisasi'),
                 'tanggal_imunisasi' => session('tanggal_imunisasi'),
             ]);
+            // Trait HasRandomId akan otomatis mengisi 'id_diagnosa'
 
             // Simpan gejala yang dipilih user
             foreach ($inputGejala as $kode_gejala => $data) {
                 GejalaDipilih::updateOrCreate(
-                    ['diagnosa_id' => $diagnosa->id, 'kode_gejala' => $kode_gejala],
+                    // DIUBAH: 'diagnosa_id' -> 'id_diagnosa'
+                    //         '$diagnosa->id' -> '$diagnosa->id_diagnosa'
+                    ['id_diagnosa' => $diagnosa->id_diagnosa, 'kode_gejala' => $kode_gejala],
                     ['cf_user' => floatval($data['jawaban'])]
                 );
             }
 
             // Ambil semua gejala yang dipilih
-            $gejalaDipilih = GejalaDipilih::where('diagnosa_id', $diagnosa->id)->get();
+            // DIUBAH: 'diagnosa_id' -> 'id_diagnosa'
+            //         '$diagnosa->id' -> '$diagnosa->id_diagnosa'
+            $gejalaDipilih = GejalaDipilih::where('id_diagnosa', $diagnosa->id_diagnosa)->get();
             $kodeGejalaDipilih = $gejalaDipilih->pluck('kode_gejala');
 
             // Ambil aturan sesuai gejala yang dipilih
             $aturanList = Aturan::whereIn('kode_gejala', $kodeGejalaDipilih)
                 ->with('kategoriKipi')
                 ->get()
-                ->groupBy('id'); 
+                // DIUBAH: 'id' menjadi 'id_aturan'
+                ->groupBy('id_aturan');
 
             $hasilDiagnosa = [];
 
@@ -118,10 +127,10 @@ class DiagnosisController extends Controller
 
                 if (!is_null($cfCombine)) {
                     $hasilDiagnosa[] = [
-                        'aturan_id'   => $aturanId,
-                        'cf'          => round($cfCombine, 4),
-                        'jenis_kipi'  => $kategori->jenis_kipi ?? 'Tidak Diketahui',
-                        'saran'       => $kategori->saran ?? '-',
+                        'aturan_id'  => $aturanId, // Ini sudah benar
+                        'cf'         => round($cfCombine, 4),
+                        'jenis_kipi' => $kategori->jenis_kipi ?? 'Tidak Diketahui',
+                        'saran'      => $kategori->saran ?? '-',
                     ];
                 }
             }
@@ -131,6 +140,7 @@ class DiagnosisController extends Controller
             $hasilTerbaik = $hasilDiagnosa[0] ?? null;
 
             if ($hasilTerbaik) {
+                // '$diagnosa' adalah objek Eloquent, ini sudah benar
                 $diagnosa->update([
                     'tanggal'    => now(),
                     'jenis_kipi' => $hasilTerbaik['jenis_kipi'],
@@ -154,12 +164,11 @@ class DiagnosisController extends Controller
             return view('user.diagnosa.hasil', [
                 'hasilDiagnosa' => $hasilDiagnosa,
                 'hasilTerbaik'  => $hasilTerbaik,
-                'gejalaDipilih' => $gejalaDipilihView->values()->toArray(), // ← ubah ke array
+                'gejalaDipilih' => $gejalaDipilihView->values()->toArray(),
             ]);
-            
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error Diagnosa: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            Log::error('Error Diagnosa: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return redirect()->back()->withErrors('Terjadi kesalahan saat proses diagnosa.')->withInput();
         }
     }
@@ -167,6 +176,7 @@ class DiagnosisController extends Controller
     // Diagnosa ulang
     public function diagnosaUlang()
     {
+        // Logika ini tidak berubah
         if (!session()->has('nama_ibu') || !session()->has('nama_anak') || !session()->has('usia_anak')) {
             return redirect()->route('diagnosa.data_form')->with('error', 'Silakan isi data diri terlebih dahulu.');
         }

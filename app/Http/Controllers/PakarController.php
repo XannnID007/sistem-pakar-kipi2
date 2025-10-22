@@ -15,13 +15,14 @@ class PakarController extends Controller
     // Menampilkan daftar user (orang tua)
     public function user(Request $request)
     {
+        // Kode ini sudah benar, tidak perlu diubah
         $query = User::where('role', 'orang_tua');
 
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -33,15 +34,23 @@ class PakarController extends Controller
     // Dashboard
     public function dashboard()
     {
-        $jumlahPakar = User::where('role', 'bidan_desa')->count();
+        // DIUBAH: 'bidan_desa' menjadi 'pakar'
+        $jumlahPakar = User::where('role', 'pakar')->count();
         $jumlahUser = User::where('role', 'orang_tua')->count();
         $jumlahGejala = Gejala::count();
         $jumlahKategori = KategoriKipi::count();
         $jumlahAturan = Aturan::count();
-        $jumlahKipi = Diagnosa::whereIn('jenis_kipi', ['Ringan (reaksi lokal)','Ringan (reaksi Sistemik)', 'Berat'])->count();
+
+        // DIUBAH: Typo 'Sistemik' menjadi 'sistemik' (lowercase) agar konsisten
+        $jumlahKipi = Diagnosa::whereIn('jenis_kipi', [
+            'Ringan (reaksi lokal)',
+            'Ringan (reaksi sistemik)',
+            'Berat'
+        ])->count();
+
         $jumlahKipiBeratBaru = Diagnosa::where('jenis_kipi', 'Berat')
-        ->where('is_read', false)
-        ->count();
+            ->where('is_read', false)
+            ->count();
         $jumlahLaporan = Laporan::count();
         $kasusRinganLokal = Diagnosa::where('jenis_kipi', 'Ringan (reaksi lokal)')->count();
         $kasusRinganSistemik = Diagnosa::where('jenis_kipi', 'Ringan (reaksi sistemik)')->count();
@@ -62,20 +71,21 @@ class PakarController extends Controller
             'kasusRinganLokal',
             'kasusRinganSistemik',
             'kasusBerat',
-            'kasusTerbaru' 
+            'kasusTerbaru'
         ));
     }
 
-    // Daftar pakar (bidan desa)
+    // Daftar pakar
     public function index(Request $request)
     {
-        $query = User::where('role', 'bidan_desa');
+        // DIUBAH: 'bidan_desa' menjadi 'pakar'
+        $query = User::where('role', 'pakar');
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -86,6 +96,7 @@ class PakarController extends Controller
 
     public function create()
     {
+        // Kode ini sudah benar
         return view('pakar.pakar.create');
     }
 
@@ -97,11 +108,15 @@ class PakarController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
+        // Trait HasRandomId akan mengisi 'id_user'
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'role' => 'bidan_desa',
-            'password' => bcrypt($request->password),
+            // DIUBAH: 'bidan_desa' menjadi 'pakar'
+            'role' => 'pakar',
+            // DIUBAH: Hapus bcrypt(). Model User sudah punya 'casts' 
+            //         untuk hashing password otomatis.
+            'password' => $request->password,
         ]);
 
         return redirect()->route('pakar.index')->with('success', 'Pakar berhasil ditambahkan.');
@@ -109,6 +124,7 @@ class PakarController extends Controller
 
     public function edit($id)
     {
+        // Kode ini sudah benar. FindOrFail akan mencari 'id_user'
         $pakar = User::findOrFail($id);
         return view('pakar.pakar.edit', compact('pakar'));
     }
@@ -119,7 +135,8 @@ class PakarController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $pakar->id,
+            // DIUBAH: Aturan unique di-update agar merujuk ke 'id_user'
+            'email' => 'required|email|unique:users,email,' . $pakar->id_user . ',id_user',
             'password' => 'nullable|string|min:6',
         ]);
 
@@ -127,7 +144,8 @@ class PakarController extends Controller
         $pakar->email = $validated['email'];
 
         if (!empty($validated['password'])) {
-            $pakar->password = bcrypt($validated['password']);
+            // DIUBAH: Hapus bcrypt(). Model akan auto-hash.
+            $pakar->password = $validated['password'];
         }
 
         $pakar->save();
@@ -137,6 +155,7 @@ class PakarController extends Controller
 
     public function destroy($id)
     {
+        // Kode ini sudah benar
         $pakar = User::findOrFail($id);
         $pakar->delete();
 
@@ -146,11 +165,17 @@ class PakarController extends Controller
     // Riwayat diagnosa pengguna
     public function riwayatDiagnosa()
     {
-        $riwayatDiagnosa = Diagnosa::join('users', 'riwayat_diagnosa.user_id', '=', 'users.id')
-            ->where('users.role', 'orang_tua')
-            ->select('riwayat_diagnosa.*', 'users.name as nama_pengguna')
-            ->orderBy('riwayat_diagnosa.tanggal', 'desc')
+        // DIUBAH TOTAL: Menggunakan Eloquent, bukan manual JOIN
+        // Ini lebih bersih dan otomatis menggunakan relasi 
+        // serta 'id_user' dan 'id_diagnosa' yang benar.
+        $riwayatDiagnosa = Diagnosa::with('user') // Eager load relasi 'user'
+            ->whereHas('user', function ($query) { // Filter berdasarkan relasi 'user'
+                $query->where('role', 'orang_tua');
+            })
+            ->orderBy('tanggal', 'desc') // 'tanggal' ada di tabel diagnosa
             ->get();
+
+        // Di view, Anda bisa panggil: $riwayat->user->name
 
         return view('pakar.riwayat', compact('riwayatDiagnosa'));
     }
@@ -158,16 +183,23 @@ class PakarController extends Controller
     // Laporan diagnosa
     public function laporan(Request $request)
     {
-        $query = Diagnosa::join('users', 'riwayat_diagnosa.user_id', '=', 'users.id')
-            ->where('users.role', 'orang_tua')
-            ->select('riwayat_diagnosa.*', 'users.name as nama_ibu')
-            ->orderBy('riwayat_diagnosa.tanggal', 'desc');
+        // DIUBAH TOTAL: Menggunakan Eloquent
+        $query = Diagnosa::with('user')
+            ->whereHas('user', function ($query) {
+                $query->where('role', 'orang_tua');
+            })
+            ->orderBy('tanggal', 'desc');
 
         if ($request->filled('tanggal_mulai') && $request->filled('tanggal_selesai')) {
-            $query->whereBetween('riwayat_diagnosa.tanggal', [$request->tanggal_mulai, $request->tanggal_selesai]);
+            // Kolom 'tanggal' ada di tabel diagnosa
+            $query->whereBetween('tanggal', [$request->tanggal_mulai, $request->tanggal_selesai]);
         }
 
         $hasilDiagnosa = $query->get();
+
+        // Di view, Anda bisa panggil:
+        // $hasil->nama_ibu (dari tabel diagnosa)
+        // $hasil->user->name (dari relasi user)
 
         return view('pakar.laporan', compact('hasilDiagnosa'));
     }
@@ -175,6 +207,7 @@ class PakarController extends Controller
     // Cetak laporan
     public function cetakLaporan()
     {
+        // Kode ini sudah benar
         $diagnosa = Diagnosa::where('tanggal', '>=', now()->subMonth())
             ->orderBy('tanggal', 'desc')
             ->get();

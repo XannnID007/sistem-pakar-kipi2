@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\HasRandomId; // 1. Import Trait
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRandomId; // 2. Gunakan Trait
+
+    protected $primaryKey = 'id_user'; // 3. Atur Primary Key
 
     /**
      * The attributes that are mass assignable.
@@ -23,7 +24,7 @@ class User extends Authenticatable
         'password',
         'role',
     ];
-    
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -46,5 +47,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Relasi ke Diagnosa
+    public function diagnosa()
+    {
+        return $this->hasMany(Diagnosa::class, 'id_user', 'id_user');
     }
 }
