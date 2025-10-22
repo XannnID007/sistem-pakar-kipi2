@@ -42,7 +42,7 @@ class LaporanController extends Controller
         // Hapus record database
         $laporan->delete();
 
-        return redirect()->route('laporan.index')->with('success', 'Laporan berhasil dihapus.');
+        return redirect()->route('pakar.laporan.index')->with('success', 'Laporan berhasil dihapus.');
     }
 
     public function laporanBerat(Request $request)

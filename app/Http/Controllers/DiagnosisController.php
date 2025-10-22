@@ -71,8 +71,7 @@ class DiagnosisController extends Controller
         try {
             // Simpan data diagnosa
             $diagnosa = Diagnosa::create([
-                // DIUBAH: 'user_id' menjadi 'id_user' (sesuai Model)
-                'id_user'           => auth()->id(),
+                'id_user' => auth()->id(),
                 'nama_ibu'          => session('nama_ibu'),
                 'nama_anak'         => session('nama_anak'),
                 'usia_anak'         => session('usia_anak'),
