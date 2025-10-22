@@ -1,333 +1,321 @@
 @extends('layouts.pakar')
 
-@section('page_title', 'Detail Diagnosa')
+@section('page_title', 'Detail Diagnosa KIPI')
 
 @section('content')
 
-    <div class="max-w-7xl mx-auto">
-        {{-- Breadcrumb --}}
-        <nav class="mb-6">
-            <ol class="flex items-center space-x-2 text-sm text-slate-600">
-                <li><a href="{{ route('pakar.riwayat.kipi') }}" class="hover:text-indigo-600">Data Diagnosa</a></li>
-                <li><i class="fas fa-chevron-right text-xs"></i></li>
-                <li class="text-slate-900 font-medium">Detail Diagnosa</li>
-            </ol>
-        </nav>
+    {{-- Pesan sukses --}}
+    @if (session('success'))
+        <div class="relative bg-green-50 text-green-800 px-6 py-4 rounded-xl mb-8 flex items-center shadow-md border-l-4 border-green-500"
+            role="alert">
+            <div class="flex-shrink-0 mr-4">
+                <i class="fas fa-check-circle text-2xl text-green-600"></i>
+            </div>
+            <div class="flex-grow">
+                <span class="font-semibold">{{ session('success') }}</span>
+            </div>
+            <button type="button" class="absolute top-3 right-3 text-green-700 hover:text-green-900 transition-colors"
+                onclick="this.parentElement.style.display='none'">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+    @endif
 
-        {{-- Header Card --}}
-        <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-t-2xl p-6 shadow-lg">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold mb-2">Detail Diagnosa Pasien</h1>
-                    <p class="text-indigo-100">
-                        <i class="fas fa-calendar-alt mr-2"></i>
-                        Diagnosa pada:
-                        {{ \Carbon\Carbon::parse($riwayat->tanggal)->locale('id')->isoFormat('dddd, D MMMM Y - HH:mm') }}
-                    </p>
+    {{-- Header dengan Info Status --}}
+    <div class="mb-6">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Detail Diagnosa KIPI</h2>
+                <div class="flex items-center gap-4 text-sm text-slate-600">
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-calendar text-indigo-500"></i>
+                        {{ \Carbon\Carbon::parse($riwayat->tanggal)->format('d F Y, H:i') }}
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-user text-indigo-500"></i>
+                        {{ $riwayat->user->name ?? 'Pengguna Dihapus' }}
+                    </span>
+                </div>
+            </div>
+
+            {{-- Status Badge --}}
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                @if ($riwayat->jenis_kipi == 'Berat')
+                    <div class="flex items-center gap-2">
+                        <span class="px-4 py-2 text-sm font-semibold rounded-full bg-red-100 text-red-800">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            KIPI Berat
+                        </span>
+                        @if (!$riwayat->is_read)
+                            <span class="px-3 py-1 text-xs bg-red-600 text-white rounded-full animate-pulse">
+                                Baru
+                            </span>
+                        @endif
+                    </div>
+                @elseif ($riwayat->jenis_kipi == 'Ringan (reaksi sistemik)')
+                    <span class="px-4 py-2 text-sm font-semibold rounded-full bg-amber-100 text-amber-800">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Ringan Sistemik
+                    </span>
+                @else
+                    <span class="px-4 py-2 text-sm font-semibold rounded-full bg-sky-100 text-sky-800">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Ringan Lokal
+                    </span>
+                @endif
+
+                {{-- Tombol Aksi --}}
+                @if ($riwayat->jenis_kipi == 'Berat')
+                    <form action="{{ route('pakar.riwayat.berat.kirim', $riwayat->id_diagnosa) }}" method="POST"
+                        onsubmit="return confirm('Yakin ingin mengirim laporan KIPI Berat ini ke sistem pelaporan?');"
+                        class="inline-block">
+                        @csrf
+                        <button type="submit"
+                            class="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Kirim Laporan</span>
+                        </button>
+                    </form>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- Grid Layout untuk Desktop/Tablet --}}
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+        {{-- Data Pasien (Kolom 1) --}}
+        <div class="xl:col-span-1 bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+            <div class="p-6 md:p-8 border-b border-slate-200">
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fas fa-user-circle text-indigo-500"></i>
+                    Data Pasien
+                </h3>
+            </div>
+            <div class="p-6 md:p-8 space-y-6">
+                {{-- Info Anak --}}
+                <div class="bg-slate-50 rounded-xl p-4">
+                    <h4 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-baby text-pink-500"></i>
+                        Data Anak
+                    </h4>
+                    <dl class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <dt class="text-slate-600">Nama:</dt>
+                            <dd class="font-semibold text-slate-800">{{ $riwayat->nama_anak }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-slate-600">Jenis Kelamin:</dt>
+                            <dd class="font-semibold text-slate-800">{{ $riwayat->jenis_kelamin }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-slate-600">Usia:</dt>
+                            <dd class="font-semibold text-slate-800">{{ $riwayat->usia_anak }} bulan</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-slate-600">Tanggal Lahir:</dt>
+                            <dd class="font-semibold text-slate-800">
+                                {{ \Carbon\Carbon::parse($riwayat->tanggal_lahir)->format('d M Y') }}
+                            </dd>
+                        </div>
+                    </dl>
                 </div>
 
-                {{-- Status Badge --}}
-                <div class="mt-4 md:mt-0">
-                    <span
-                        class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium
-                        {{ strtolower($riwayat->jenis_kipi) === 'berat'
-                            ? 'bg-red-500 text-white'
-                            : (strpos(strtolower($riwayat->jenis_kipi), 'sistemik') !== false
-                                ? 'bg-yellow-500 text-white'
-                                : 'bg-blue-500 text-white') }}">
-                        @if (strtolower($riwayat->jenis_kipi) === 'berat')
-                            <i class="fas fa-exclamation-triangle mr-2"></i>KIPI Berat
-                        @elseif(strpos(strtolower($riwayat->jenis_kipi), 'sistemik') !== false)
-                            <i class="fas fa-exclamation-circle mr-2"></i>KIPI Ringan (Sistemik)
-                        @else
-                            <i class="fas fa-info-circle mr-2"></i>KIPI Ringan (Lokal)
-                        @endif
-                    </span>
+                {{-- Info Ibu --}}
+                <div class="bg-slate-50 rounded-xl p-4">
+                    <h4 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-female text-purple-500"></i>
+                        Data Ibu
+                    </h4>
+                    <dl class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <dt class="text-slate-600">Nama:</dt>
+                            <dd class="font-semibold text-slate-800">{{ $riwayat->nama_ibu }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-slate-600">Alamat:</dt>
+                            <dd class="font-semibold text-slate-800">{{ $riwayat->alamat }}</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                {{-- Info Vaksinasi --}}
+                <div class="bg-slate-50 rounded-xl p-4">
+                    <h4 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-syringe text-green-500"></i>
+                        Data Vaksinasi
+                    </h4>
+                    <dl class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <dt class="text-slate-600">Jenis Vaksin:</dt>
+                            <dd class="font-semibold text-slate-800 capitalize">{{ $riwayat->jenis_vaksin }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-slate-600">Tempat:</dt>
+                            <dd class="font-semibold text-slate-800">{{ $riwayat->tempat_imunisasi }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-slate-600">Tanggal:</dt>
+                            <dd class="font-semibold text-slate-800">
+                                {{ \Carbon\Carbon::parse($riwayat->tanggal_imunisasi)->format('d M Y') }}
+                            </dd>
+                        </div>
+                    </dl>
                 </div>
             </div>
         </div>
 
-        {{-- Main Content --}}
-        <div class="bg-white rounded-b-2xl shadow-lg overflow-hidden">
-            <div class="p-6 md:p-8">
+        {{-- Hasil Diagnosa & Gejala (Kolom 2-3) --}}
+        <div class="xl:col-span-2 space-y-6">
 
-                {{-- Grid Layout --}}
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-
-                    {{-- Kolom Kiri: Data Pasien --}}
-                    <div class="xl:col-span-1 space-y-6">
-
-                        {{-- Card Data Anak --}}
-                        <div class="border border-slate-200 rounded-xl overflow-hidden">
-                            <div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-3 border-b border-slate-200">
-                                <h3 class="text-lg font-semibold text-slate-800 flex items-center">
-                                    <i class="fas fa-child mr-2 text-indigo-600"></i>
-                                    Data Anak
-                                </h3>
-                            </div>
-                            <div class="p-4">
-                                <dl class="space-y-3">
-                                    <div class="flex justify-between py-2 border-b border-slate-100">
-                                        <dt class="font-medium text-slate-600">Nama</dt>
-                                        <dd class="text-slate-900 font-medium">{{ $riwayat->nama_anak ?? '-' }}</dd>
-                                    </div>
-                                    <div class="flex justify-between py-2 border-b border-slate-100">
-                                        <dt class="font-medium text-slate-600">Jenis Kelamin</dt>
-                                        <dd class="text-slate-900">
-                                            <span class="inline-flex items-center">
-                                                <i
-                                                    class="fas {{ $riwayat->jenis_kelamin == 'Laki-laki' ? 'fa-mars text-blue-500' : 'fa-venus text-pink-500' }} mr-1"></i>
-                                                {{ $riwayat->jenis_kelamin ?? '-' }}
-                                            </span>
-                                        </dd>
-                                    </div>
-                                    <div class="flex justify-between py-2 border-b border-slate-100">
-                                        <dt class="font-medium text-slate-600">Tanggal Lahir</dt>
-                                        <dd class="text-slate-900">
-                                            {{ $riwayat->tanggal_lahir ? \Carbon\Carbon::parse($riwayat->tanggal_lahir)->locale('id')->isoFormat('D MMMM Y') : '-' }}
-                                        </dd>
-                                    </div>
-                                    <div class="flex justify-between py-2 border-b border-slate-100">
-                                        <dt class="font-medium text-slate-600">Usia</dt>
-                                        <dd class="text-slate-900">
-                                            <span
-                                                class="inline-flex items-center px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium">
-                                                {{ $riwayat->usia_anak ?? '-' }} bulan
-                                            </span>
-                                        </dd>
-                                    </div>
-                                </dl>
-                            </div>
+            {{-- Hasil Diagnosa --}}
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+                <div class="p-6 md:p-8 border-b border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-stethoscope text-red-500"></i>
+                        Hasil Diagnosa
+                    </h3>
+                </div>
+                <div class="p-6 md:p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Kategori KIPI --}}
+                        <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6">
+                            <h4 class="font-semibold text-slate-700 mb-2">Kategori KIPI</h4>
+                            <p
+                                class="text-2xl font-bold mb-2
+                                {{ $riwayat->jenis_kipi == 'Berat' ? 'text-red-600' : ($riwayat->jenis_kipi == 'Ringan (reaksi sistemik)' ? 'text-amber-600' : 'text-sky-600') }}">
+                                {{ $riwayat->jenis_kipi }}
+                            </p>
                         </div>
 
-                        {{-- Card Data Ibu --}}
-                        <div class="border border-slate-200 rounded-xl overflow-hidden">
-                            <div class="bg-gradient-to-r from-pink-50 to-rose-50 px-4 py-3 border-b border-slate-200">
-                                <h3 class="text-lg font-semibold text-slate-800 flex items-center">
-                                    <i class="fas fa-female mr-2 text-pink-600"></i>
-                                    Data Ibu
-                                </h3>
+                        {{-- Nilai Certainty Factor --}}
+                        <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6">
+                            <h4 class="font-semibold text-slate-700 mb-2">Nilai Certainty Factor</h4>
+                            <div class="flex items-end gap-2">
+                                <span class="text-3xl font-bold text-slate-800">
+                                    {{ number_format($riwayat->nilai_cf * 100, 1) }}%
+                                </span>
+                                <span class="text-sm text-slate-600 mb-1">keyakinan</span>
                             </div>
-                            <div class="p-4">
-                                <dl class="space-y-3">
-                                    <div class="flex justify-between py-2 border-b border-slate-100">
-                                        <dt class="font-medium text-slate-600">Nama Ibu</dt>
-                                        <dd class="text-slate-900 font-medium">{{ $riwayat->nama_ibu ?? '-' }}</dd>
-                                    </div>
-                                    <div class="py-2">
-                                        <dt class="font-medium text-slate-600 mb-2">Alamat</dt>
-                                        <dd class="text-slate-900 bg-slate-50 p-3 rounded-lg">
-                                            {{ $riwayat->alamat ?? '-' }}
-                                        </dd>
-                                    </div>
-                                </dl>
-                            </div>
-                        </div>
-
-                        {{-- Card Data Imunisasi --}}
-                        <div class="border border-slate-200 rounded-xl overflow-hidden">
-                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 border-b border-slate-200">
-                                <h3 class="text-lg font-semibold text-slate-800 flex items-center">
-                                    <i class="fas fa-syringe mr-2 text-green-600"></i>
-                                    Data Imunisasi
-                                </h3>
-                            </div>
-                            <div class="p-4">
-                                <dl class="space-y-3">
-                                    <div class="flex justify-between py-2 border-b border-slate-100">
-                                        <dt class="font-medium text-slate-600">Jenis Vaksin</dt>
-                                        <dd class="text-slate-900 font-medium">{{ $riwayat->jenis_vaksin ?? '-' }}</dd>
-                                    </div>
-                                    <div class="flex justify-between py-2 border-b border-slate-100">
-                                        <dt class="font-medium text-slate-600">Tempat</dt>
-                                        <dd class="text-slate-900">{{ $riwayat->tempat_imunisasi ?? '-' }}</dd>
-                                    </div>
-                                    <div class="flex justify-between py-2">
-                                        <dt class="font-medium text-slate-600">Tanggal</dt>
-                                        <dd class="text-slate-900">
-                                            {{ $riwayat->tanggal_imunisasi ? \Carbon\Carbon::parse($riwayat->tanggal_imunisasi)->locale('id')->isoFormat('D MMMM Y') : '-' }}
-                                        </dd>
-                                    </div>
-                                </dl>
+                            {{-- Progress Bar --}}
+                            <div class="w-full bg-slate-200 rounded-full h-2 mt-3">
+                                <div class="h-2 rounded-full transition-all duration-500
+                                    {{ $riwayat->nilai_cf >= 0.8 ? 'bg-red-500' : ($riwayat->nilai_cf >= 0.5 ? 'bg-amber-500' : 'bg-sky-500') }}"
+                                    style="width: {{ $riwayat->nilai_cf * 100 }}%">
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Kolom Tengah & Kanan: Gejala & Hasil --}}
-                    <div class="xl:col-span-2 space-y-6">
-
-                        {{-- Card Gejala --}}
-                        <div class="border border-slate-200 rounded-xl overflow-hidden">
-                            <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-4 border-b border-slate-200">
-                                <h3 class="text-xl font-semibold text-slate-800 flex items-center">
-                                    <i class="fas fa-stethoscope mr-3 text-amber-600"></i>
-                                    Gejala yang Dialami
-                                </h3>
-                            </div>
-                            <div class="p-6">
-                                @php
-                                    $filteredGejala = $gejala->filter(fn($item) => $item->cf_user > 0);
-                                @endphp
-
-                                @if ($filteredGejala->isNotEmpty())
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        @foreach ($filteredGejala as $index => $g)
-                                            <div
-                                                class="flex items-start p-4 bg-slate-50 rounded-lg border border-slate-200">
-                                                <div
-                                                    class="flex-shrink-0 w-8 h-8 bg-amber-100 text-amber-800 rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                                                    {{ $index + 1 }}
-                                                </div>
-                                                <div class="flex-1">
-                                                    <p class="text-slate-800 font-medium mb-1">
-                                                        {{ $g->gejala->nama_gejala ?? '-' }}
-                                                    </p>
-                                                    <div class="flex items-center">
-                                                        <span class="text-xs text-slate-600 mr-2">Keyakinan:</span>
-                                                        <span
-                                                            class="inline-flex items-center px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium">
-                                                            {{ $g->cf_user == 1 ? 'Yakin (1.0)' : ($g->cf_user == 0.5 ? 'Ragu-ragu (0.5)' : $g->cf_user) }}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <div class="text-center py-8">
-                                        <i class="fas fa-exclamation-circle text-4xl text-slate-300 mb-4"></i>
-                                        <p class="text-slate-500 text-lg">Tidak ada gejala yang dipilih oleh pengguna.</p>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-
-                        {{-- Card Hasil Diagnosa --}}
-                        <div
-                            class="border-2 rounded-xl overflow-hidden
-                            {{ strtolower($riwayat->jenis_kipi) === 'berat'
-                                ? 'border-red-300 bg-red-50'
-                                : (strpos(strtolower($riwayat->jenis_kipi), 'sistemik') !== false
-                                    ? 'border-yellow-300 bg-yellow-50'
-                                    : 'border-blue-300 bg-blue-50') }}">
-
-                            <div
-                                class="px-6 py-4 border-b
-                                {{ strtolower($riwayat->jenis_kipi) === 'berat'
-                                    ? 'bg-red-100 border-red-200'
-                                    : (strpos(strtolower($riwayat->jenis_kipi), 'sistemik') !== false
-                                        ? 'bg-yellow-100 border-yellow-200'
-                                        : 'bg-blue-100 border-blue-200') }}">
-                                <h3 class="text-xl font-semibold text-slate-800 flex items-center">
-                                    <i
-                                        class="fas fa-chart-line mr-3 
-                                        {{ strtolower($riwayat->jenis_kipi) === 'berat'
-                                            ? 'text-red-600'
-                                            : (strpos(strtolower($riwayat->jenis_kipi), 'sistemik') !== false
-                                                ? 'text-yellow-600'
-                                                : 'text-blue-600') }}"></i>
-                                    Hasil Diagnosa Sistem
-                                </h3>
-                            </div>
-
-                            <div class="p-6">
-                                {{-- Tingkat Keyakinan --}}
-                                <div class="text-center mb-6">
-                                    <div class="relative inline-block">
-                                        <div class="w-32 h-32 mx-auto mb-4">
-                                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                                                <circle cx="60" cy="60" r="50" stroke-width="8"
-                                                    stroke="#e5e7eb" fill="none"></circle>
-                                                <circle cx="60" cy="60" r="50" stroke-width="8"
-                                                    stroke="{{ strtolower($riwayat->jenis_kipi) === 'berat' ? '#dc2626' : (strpos(strtolower($riwayat->jenis_kipi), 'sistemik') !== false ? '#d97706' : '#2563eb') }}"
-                                                    fill="none" stroke-linecap="round"
-                                                    stroke-dasharray="{{ 2 * 3.14159 * 50 }}"
-                                                    stroke-dashoffset="{{ 2 * 3.14159 * 50 * (1 - ($riwayat->nilai_cf ?? 0)) }}">
-                                                </circle>
-                                            </svg>
-                                            <div class="absolute inset-0 flex items-center justify-center">
-                                                <span
-                                                    class="text-3xl font-bold 
-                                                    {{ strtolower($riwayat->jenis_kipi) === 'berat'
-                                                        ? 'text-red-600'
-                                                        : (strpos(strtolower($riwayat->jenis_kipi), 'sistemik') !== false
-                                                            ? 'text-yellow-600'
-                                                            : 'text-blue-600') }}">
-                                                    {{ isset($riwayat->nilai_cf) ? number_format($riwayat->nilai_cf * 100, 0) : '-' }}%
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <h4 class="text-xl font-bold text-slate-800 mb-2">
-                                        Kemungkinan KIPI {{ $riwayat->jenis_kipi ?? '-' }}
-                                    </h4>
-                                    <p class="text-slate-600">Tingkat keyakinan sistem pakar</p>
-                                </div>
-
-                                {{-- Saran Penanganan --}}
-                                <div class="bg-white/50 rounded-lg p-6 border border-slate-200">
-                                    <h5 class="font-semibold text-slate-800 mb-3 flex items-center">
-                                        <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>
-                                        Saran Penanganan
-                                    </h5>
-                                    <div class="prose prose-sm max-w-none">
-                                        <p class="text-slate-700 leading-relaxed">{{ $riwayat->saran ?? '-' }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    {{-- Saran Penanganan --}}
+                    <div
+                        class="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-l-4 border-indigo-500">
+                        <h4 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                            <i class="fas fa-lightbulb text-indigo-500"></i>
+                            Saran Penanganan
+                        </h4>
+                        <p class="text-slate-700 leading-relaxed">{{ $riwayat->saran }}</p>
                     </div>
                 </div>
             </div>
 
-            {{-- Footer dengan Action Buttons --}}
-            <div
-                class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div class="flex items-center text-sm text-slate-600">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    <span>Data diagnosa telah tersimpan dalam sistem</span>
+            {{-- Gejala yang Dipilih --}}
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+                <div class="p-6 md:p-8 border-b border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-list-check text-emerald-500"></i>
+                        Gejala yang Dipilih
+                    </h3>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Total {{ $gejala->where('cf_user', '>', 0)->count() }} gejala dilaporkan
+                    </p>
                 </div>
-
-                <div class="flex items-center gap-3">
-                    @if (strtolower($riwayat->jenis_kipi) === 'berat')
-                        <form method="POST" action="{{ route('pakar.riwayat.berat.kirim', $riwayat->id) }}"
-                            class="inline">
-                            @csrf
-                            <button type="submit"
-                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200">
-                                <i class="fas fa-file-export mr-2"></i>
-                                Buat Laporan
-                            </button>
-                        </form>
+                <div class="p-6 md:p-8">
+                    @if ($gejala->where('cf_user', '>', 0)->count() > 0)
+                        <div class="grid grid-cols-1 gap-4">
+                            @foreach ($gejala->where('cf_user', '>', 0) as $item)
+                                <div
+                                    class="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                                    <div class="flex-1">
+                                        <h5 class="font-semibold text-slate-800">
+                                            {{ $item->gejala->nama_gejala ?? 'Gejala tidak ditemukan' }}</h5>
+                                        <p class="text-sm text-slate-600">Kode: {{ $item->kode_gejala }}</p>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        {{-- Tingkat Keyakinan User --}}
+                                        <div class="text-right">
+                                            <span class="text-sm text-slate-600">Tingkat Keyakinan:</span>
+                                            <div
+                                                class="font-bold text-lg
+                                                {{ $item->cf_user == 1.0 ? 'text-red-600' : ($item->cf_user == 0.5 ? 'text-amber-600' : 'text-slate-600') }}">
+                                                @if ($item->cf_user == 1.0)
+                                                    Yakin (100%)
+                                                @elseif($item->cf_user == 0.5)
+                                                    Kurang Yakin (50%)
+                                                @else
+                                                    Tidak Yakin (0%)
+                                                @endif
+                                            </div>
+                                        </div>
+                                        {{-- Icon Status --}}
+                                        <div
+                                            class="w-12 h-12 rounded-full flex items-center justify-center
+                                            {{ $item->cf_user == 1.0 ? 'bg-red-100 text-red-600' : ($item->cf_user == 0.5 ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-600') }}">
+                                            @if ($item->cf_user == 1.0)
+                                                <i class="fas fa-check-circle text-xl"></i>
+                                            @elseif($item->cf_user == 0.5)
+                                                <i class="fas fa-question-circle text-xl"></i>
+                                            @else
+                                                <i class="fas fa-times-circle text-xl"></i>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-12">
+                            <i class="fas fa-exclamation-circle fa-4x text-slate-300 mb-4"></i>
+                            <p class="text-xl font-medium text-slate-500">Tidak ada gejala yang dilaporkan</p>
+                        </div>
                     @endif
-
-                    <a href="{{ route('pakar.riwayat.kipi') }}"
-                        class="inline-flex items-center px-4 py-2 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200">
-                        <i class="fas fa-arrow-left mr-2"></i>
-                        Kembali
-                    </a>
                 </div>
             </div>
         </div>
     </div>
 
+    {{-- Tombol Navigasi --}}
+    <div class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 p-6 bg-white rounded-xl shadow-lg">
+        <a href="{{ route('pakar.riwayat.kipi') }}"
+            class="flex items-center gap-2 px-6 py-3 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-100 transition-colors">
+            <i class="fas fa-arrow-left"></i>
+            <span>Kembali ke Daftar</span>
+        </a>
+    </div>
+
+    {{-- Print Styles --}}
+    <style media="print">
+        @page {
+            margin: 2cm;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
+        body {
+            font-size: 12pt;
+            line-height: 1.4;
+        }
+
+        .grid {
+            display: block !important;
+        }
+
+        .xl\\:col-span-1,
+        .xl\\:col-span-2 {
+            width: 100% !important;
+            margin-bottom: 20px;
+        }
+    </style>
 @endsection
-
-@push('scripts')
-    <script>
-        // Animasi untuk progress circle
-        document.addEventListener('DOMContentLoaded', function() {
-            const circle = document.querySelector('circle[stroke-dasharray]');
-            if (circle) {
-                // Reset ke 0
-                circle.style.strokeDashoffset = circle.getAttribute('stroke-dasharray');
-
-                // Animate ke nilai yang benar
-                setTimeout(() => {
-                    circle.style.transition = 'stroke-dashoffset 1.5s ease-in-out';
-                    circle.style.strokeDashoffset = circle.getAttribute('stroke-dashoffset');
-                }, 500);
-            }
-        });
-    </script>
-@endpush
