@@ -203,13 +203,24 @@ class HasilDiagnosaController extends Controller
     public function laporanBulanan(Request $request)
     {
         // Logika ini tidak perlu diubah
-        $riwayat = Diagnosa::with('gejalaDipilih')
-            ->when($request->filled('kategori'), fn($q) => $q->where('jenis_kipi', $request->kategori))
-            ->when(!$request->filled('kategori'), fn($q) => $q->whereIn('jenis_kipi', ['Ringan (reaksi lokal)', 'Ringan (reaksi sistemik)', 'Berat']))
-            ->when($request->filled('bulan'), fn($q) => $q->whereMonth('tanggal', $request->bulan))
-            ->when($request->filled('tahun'), fn($q) => $q->whereYear('tanggal', $request->tahun))
-            ->latest()
-            ->get();
+        $query = Diagnosa::with('gejalaDipilih.gejala');
+
+        // Filter berdasarkan kategori
+        if ($request->filled('kategori')) {
+            $query->where('jenis_kipi', $request->kategori);
+        } else {
+            $query->whereIn('jenis_kipi', ['Ringan (reaksi lokal)', 'Ringan (reaksi sistemik)', 'Berat']);
+        }
+
+        // Filter berdasarkan bulan dan tahun
+        if ($request->filled('bulan')) {
+            $query->whereMonth('tanggal', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('tanggal', $request->tahun);
+        }
+
+        $riwayat = $query->orderBy('tanggal', 'desc')->get();
 
         return view('riwayat.laporan_bulanan', compact('riwayat', 'request'));
     }
@@ -220,24 +231,45 @@ class HasilDiagnosaController extends Controller
         // Logika ini tidak perlu diubah
         $bulan = $request->bulan;
         $tahun = $request->tahun;
+        $kategori = $request->kategori;
 
-        $riwayat = Diagnosa::with('gejalaDipilih')
-            ->whereIn('jenis_kipi', ['Ringan (reaksi lokal)', 'Ringan (reaksi sistemik)', 'Berat'])
-            ->when($bulan, fn($q) => $q->whereMonth('tanggal', $bulan))
-            ->when($tahun, fn($q) => $q->whereYear('tanggal', $tahun))
-            ->get();
+        $query = Diagnosa::with('gejalaDipilih.gejala');
 
+        // Filter berdasarkan kategori jika ada
+        if ($kategori) {
+            $query->where('jenis_kipi', $kategori);
+        } else {
+            $query->whereIn('jenis_kipi', ['Ringan (reaksi lokal)', 'Ringan (reaksi sistemik)', 'Berat']);
+        }
+
+        // Filter berdasarkan bulan dan tahun
+        if ($bulan) {
+            $query->whereMonth('tanggal', $bulan);
+        }
+        if ($tahun) {
+            $query->whereYear('tanggal', $tahun);
+        }
+
+        $riwayat = $query->orderBy('tanggal', 'desc')->get();
+
+        // Buat nama file yang lebih deskriptif
         $namaBulan = $bulan ? Carbon::createFromDate($tahun, $bulan, 1)->locale('id')->isoFormat('MMMM') : 'Semua';
+        $namaKategori = $kategori ? str_replace(' ', '_', $kategori) : 'Semua_KIPI';
         $periode = $bulan && $tahun
             ? "{$namaBulan}_{$tahun}"
             : ($tahun ? "Tahun_{$tahun}" : 'Semua_Periode');
 
-        $namaFile = "Laporan_KIPI_Bulanan_{$periode}_" . now()->format('Ymd_His') . ".pdf";
+        $namaFile = "Laporan_{$namaKategori}_{$periode}_" . now()->format('Ymd_His') . ".pdf";
         $filePath = 'storage/laporan/' . $namaFile;
+
+        // Pastikan folder ada
+        if (!file_exists(public_path('storage/laporan'))) {
+            mkdir(public_path('storage/laporan'), 0755, true);
+        }
 
         $pdf = Pdf::loadView('riwayat.laporan_pdf', [
             'riwayat'  => $riwayat,
-            'kategori' => 'Semua',
+            'kategori' => $kategori ?: 'Semua',
             'request'  => $request,
         ])->setPaper('A4', 'landscape');
 
@@ -246,13 +278,13 @@ class HasilDiagnosaController extends Controller
         // Trait HasRandomId akan otomatis mengisi 'id_laporan'
         Laporan::create([
             'id_diagnosa'   => null,
-            'jenis_laporan' => 'KIPI Bulanan',
+            'jenis_laporan' => 'KIPI Bulanan - ' . ($kategori ?: 'Semua Kategori'),
             'tanggal_laporan' => now()->toDateString(),
             'file_path'     => $filePath,
             'nama_file'     => $namaFile,
         ]);
 
-        return redirect()->back()->with('success', 'Laporan Bulanan berhasil disimpan.');
+        return redirect()->back()->with('success', 'Laporan berhasil disimpan dan dapat diunduh di menu Laporan.');
     }
 
     // Kirim laporan KIPI berat dari detail diagnosa

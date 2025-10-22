@@ -84,6 +84,7 @@ Route::middleware('auth')->group(function () {
 
         // Route tambahan untuk laporan KIPI
         Route::get('/kipi-bulanan', [HasilDiagnosaController::class, 'laporanBulanan'])->name('kipi.bulanan');
+        Route::post('/kipi-bulanan/kirim', [HasilDiagnosaController::class, 'kirimBulanan'])->name('kipi.bulanan.kirim');
     });
 
     // == AREA KHUSUS PAKAR ==

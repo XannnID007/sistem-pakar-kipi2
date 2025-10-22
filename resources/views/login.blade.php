@@ -3,78 +3,89 @@
 @section('title', 'Login - Sistem Pakar KIPI')
 
 @section('styles')
-    {{-- Hapus link login.css, ganti dengan style inline jika perlu --}}
     <style>
-        /* CSS untuk toggle password dipindahkan ke Tailwind */
+        /* Custom styles untuk form login yang lebih compact */
+        .login-container {
+            min-height: calc(100vh - 200px);
+        }
     </style>
 @endsection
 
 @section('content')
-    <div class="flex items-center justify-center py-12">
-        <div class="w-full max-w-md bg-white p-8 rounded-3xl shadow-xl border border-slate-100 mx-auto">
-            <h2 class="text-2xl font-bold text-slate-800 text-center mb-8 pb-4 border-b border-slate-200">Login</h2>
+    <div class="login-container flex items-center justify-center py-8">
+        <div class="w-full max-w-sm bg-white p-6 rounded-2xl shadow-lg border border-slate-200 mx-auto">
+            <div class="text-center mb-6">
+                <h2 class="text-xl font-bold text-slate-800">Masuk</h2>
+                <p class="text-sm text-slate-600 mt-1">Silakan masuk ke akun Anda</p>
+            </div>
 
             {{-- Tampilkan Error --}}
             @if ($errors->any())
-                <div class="bg-red-50 text-red-800 px-6 py-4 rounded-xl mb-6 flex items-start shadow-md border-l-4 border-red-500"
-                    role="alert">
-                    <div class="flex-shrink-0 mr-4 mt-1">
-                        <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
-                    </div>
-                    <div>
-                        <p class="font-semibold text-lg mb-2">Terjadi Kesalahan:</p>
-                        <ul class="list-disc list-inside text-sm space-y-1">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+                <div class="bg-red-50 text-red-800 px-4 py-3 rounded-lg mb-4 border border-red-200" role="alert">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-circle text-red-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <div class="text-sm">
+                            @if ($errors->count() == 1)
+                                {{ $errors->first() }}
+                            @else
+                                <ul class="list-disc list-inside space-y-1">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
                     </div>
                 </div>
             @endif
 
             {{-- Form Login --}}
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login') }}" class="space-y-4">
                 @csrf
 
-                <div class="mb-6">
-                    <label for="email" class="block text-sm font-medium text-slate-700 mb-2">Email</label>
-                    <input type="email" name="email" id="email" placeholder="Email Anda" value="{{ old('email') }}"
-                        required
-                        class="block w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-300 text-slate-800 placeholder-slate-400 text-lg">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                    <input type="email" name="email" id="email" placeholder="Masukkan email"
+                        value="{{ old('email') }}" required
+                        class="block w-full px-3 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-slate-800 placeholder-slate-400">
                 </div>
 
-                <div class="mb-6">
-                    <label for="password" class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
                     <div class="relative">
-                        <input type="password" name="password" id="password" placeholder="Password Anda" required
-                            class="block w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-300 text-slate-800 placeholder-slate-400 text-lg pr-10">
+                        <input type="password" name="password" id="password" placeholder="Masukkan password" required
+                            class="block w-full px-3 py-2.5 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 text-slate-800 placeholder-slate-400 pr-10">
 
-                        {{-- Tombol Toggle Password --}}
-                        <span
-                            class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-slate-400 hover:text-indigo-600"
+                        <button type="button"
+                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-indigo-600 transition-colors"
                             onclick="togglePassword()">
-                            <i id="toggleIcon" class="fas fa-eye"></i>
-                        </span>
+                            <i id="toggleIcon" class="fas fa-eye text-sm"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div class="text-sm text-right mb-6">
-                    <a href="{{ route('lupa.password.form') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
-                        Lupa Password?
+                <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="remember" name="remember"
+                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded">
+                        <label for="remember" class="ml-2 text-slate-700">Ingat saya</label>
+                    </div>
+                    <a href="{{ route('lupa.password.form') }}" class="text-indigo-600 hover:text-indigo-500 font-medium">
+                        Lupa password?
                     </a>
                 </div>
 
                 <button type="submit"
-                    class="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200 font-medium text-lg">
-                    Login
+                    class="w-full px-4 py-2.5 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                    Masuk
                 </button>
             </form>
 
-            <div class="text-center mt-6 pt-6 border-t border-slate-200">
+            <div class="text-center mt-6 pt-4 border-t border-slate-200">
                 <p class="text-sm text-slate-600">
                     Belum punya akun?
-                    <a href="{{ route('register.form') }}" class="font-semibold text-indigo-600 hover:text-indigo-500">
-                        Daftar di sini
+                    <a href="{{ route('register.form') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        Daftar sekarang
                     </a>
                 </p>
             </div>
@@ -83,7 +94,6 @@
 @endsection
 
 @section('scripts')
-    {{-- Script ini tidak perlu diubah, sudah kompatibel --}}
     <script>
         function togglePassword() {
             const input = document.getElementById('password');
