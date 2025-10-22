@@ -13,13 +13,12 @@ class Laporan extends Model
     protected $primaryKey = 'id_laporan'; // 3. Primary key sudah benar
 
     protected $fillable = [
-        'id_diagnosa', // 4. Foreign key sudah benar
+        'id_diagnosa',
         'jenis_laporan',
         'tanggal_laporan',
         'file_path',
         'nama_file',
     ];
-
     protected $casts = [
         'tanggal_laporan' => 'date',
     ];

@@ -119,6 +119,8 @@ Route::middleware('auth')->group(function () {
             Route::delete('/destroy/{aturan}', [AturanController::class, 'destroy'])->name('destroy');
         });
 
+        Route::post('/laporan/kipi/bulanan/kirim', [HasilDiagnosaController::class, 'kirimBulanan'])->name('laporan.kipi.bulanan.kirim');
+
         // -- MELIHAT RIWAYAT & LAPORAN --
         Route::get('/riwayat-diagnosa', [PakarController::class, 'riwayatDiagnosa'])->name('riwayat');
         Route::get('/laporan', [PakarController::class, 'laporan'])->name('laporan');

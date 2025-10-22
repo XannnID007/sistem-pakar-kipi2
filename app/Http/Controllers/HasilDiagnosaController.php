@@ -356,17 +356,14 @@ class HasilDiagnosaController extends Controller
             // Simpan ke database laporan
             Laporan::create([
                 'id_diagnosa'     => null,
-                'jenis_laporan'   => 'KIPI Bulanan - ' . ($kategori ?: 'Semua Kategori'),
+                'jenis_laporan'   => 'KIPI Bulanan', // UBAH BARIS INI
                 'tanggal_laporan' => now()->toDateString(),
                 'file_path'       => $filePath,
                 'nama_file'       => $namaFile,
-                'periode_bulan'   => $bulan,
-                'periode_tahun'   => $tahun,
-                'total_data'      => $riwayat->count(),
             ]);
 
             // Redirect ke menu laporan dengan pesan sukses
-            return redirect()->route('laporan.index')->with(
+            return redirect()->route('pakar.laporan.index')->with(
                 'success',
                 'Laporan berhasil dibuat dengan ' . $riwayat->count() . ' data. ' .
                     'File: ' . $namaFile . ' telah tersimpan dan dapat diunduh.'
@@ -411,7 +408,7 @@ class HasilDiagnosaController extends Controller
                 'tanggal_laporan' => now()->toDateString(),
                 'file_path'       => $filePath,
                 'nama_file'       => $namaFile,
-                'nama_pasien'     => $riwayat->nama_anak,
+                // 'nama_pasien'     => $riwayat->nama_anak, // <-- HAPUS BARIS INI
             ]);
 
             return redirect()->route('laporan.index')->with(
