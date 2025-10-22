@@ -3,12 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Cetak Laporan KIPI</title>
+    <title>Preview Laporan KIPI</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             font-size: 14px;
             color: #000;
+            margin: 20px;
         }
 
         table {
@@ -88,7 +89,7 @@
             </script>
         @endif
 
-        <form method="POST" action="{{ route('laporan.kipi.bulanan.kirim') }}" style="display: inline;">
+        <form method="POST" action="{{ route('pakar.laporan.kipi.bulanan.kirim') }}" style="display: inline;">
             @csrf
             <input type="hidden" name="kategori" value="{{ request('kategori') }}">
             <input type="hidden" name="bulan" value="{{ request('bulan') }}">
@@ -108,8 +109,9 @@
     </div>
 
     {{-- Judul dan periode --}}
-    <h2>Laporan Diagnosa KIPI Berat & Ringan</h2>
+    <h2>Laporan Diagnosa KIPI</h2>
     <h4>
+        Kategori: {{ request('kategori') ?: 'Semua Kategori' }}<br>
         Periode:
         @if ($request->bulan && $request->tahun)
             {{ \Carbon\Carbon::createFromDate($request->tahun, $request->bulan, 1)->locale('id')->isoFormat('MMMM YYYY') }}
@@ -161,7 +163,7 @@
                     <td>
                         @if ($item->gejalaDipilih->count())
                             <ul>
-                                @foreach ($item->gejalaDipilih->where('cf_user', '!=', 0) as $g)
+                                @foreach ($item->gejalaDipilih->where('cf_user', '>', 0) as $g)
                                     <li>
                                         {{ $g->gejala->nama_gejala ?? '-' }}
                                     </li>
@@ -180,6 +182,11 @@
             @endforelse
         </tbody>
     </table>
+
+    <script>
+        // Auto print jika diperlukan
+        // window.print();
+    </script>
 
 </body>
 

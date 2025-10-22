@@ -76,15 +76,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/riwayat/{id}', [HasilDiagnosaController::class, 'destroy'])->name('riwayat.destroy');
     Route::get('/riwayat/{id}/cetak', [HasilDiagnosaController::class, 'cetak'])->name('riwayat.cetak');
 
-    // ✅ ROUTE LAPORAN (DIPINDAH KELUAR DARI GROUP PAKAR)
+    // ✅ ROUTE LAPORAN (DAPAT DIAKSES OLEH SEMUA USER YANG LOGIN)
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('/', [LaporanController::class, 'index'])->name('index');
         Route::get('/{id}', [LaporanController::class, 'show'])->name('show');
         Route::delete('/{id}', [LaporanController::class, 'destroy'])->name('destroy');
+        Route::get('/download/{filename}', [HasilDiagnosaController::class, 'downloadLaporan'])->name('download');
+        Route::delete('/hapus/{id}', [HasilDiagnosaController::class, 'hapusLaporan'])->name('hapus');
 
-        // Route tambahan untuk laporan KIPI
-        Route::get('/kipi-bulanan', [HasilDiagnosaController::class, 'laporanBulanan'])->name('kipi.bulanan');
-        Route::post('/kipi-bulanan/kirim', [HasilDiagnosaController::class, 'kirimBulanan'])->name('kipi.bulanan.kirim');
+        // Route untuk preview dan kirim laporan KIPI bulanan
+        Route::get('/kipi/bulanan', [HasilDiagnosaController::class, 'laporanBulanan'])->name('kipi.bulanan');
+        Route::post('/kipi/bulanan/kirim', [HasilDiagnosaController::class, 'kirimBulanan'])->name('kipi.bulanan.kirim');
     });
 
     // == AREA KHUSUS PAKAR ==
@@ -126,9 +128,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/riwayat/kipi', [HasilDiagnosaController::class, 'kipi'])->name('riwayat.kipi');
         Route::get('/riwayat/kipi/{id}', [HasilDiagnosaController::class, 'detailKIPI'])->name('riwayat.kipi.detail');
 
-        // -- KIRIM LAPORAN --
+        // -- KIRIM LAPORAN KIPI --
         Route::post('/riwayat/kirim', [HasilDiagnosaController::class, 'kirimBulanan'])->name('riwayat.kipi.kirim');
         Route::post('/kipi-berat/{id}/kirim', [HasilDiagnosaController::class, 'kirimKIPIBerat'])->name('riwayat.berat.kirim');
+
+        // -- PREVIEW LAPORAN KIPI --
+        Route::get('/laporan/kipi/preview', [HasilDiagnosaController::class, 'laporanBulanan'])->name('laporan.kipi.preview');
+
+        // -- KIPI BERAT --
+        Route::get('/kipi-berat', [HasilDiagnosaController::class, 'kipiBerat'])->name('kipi.berat');
     }); // End Middleware Pakar
 
 });
