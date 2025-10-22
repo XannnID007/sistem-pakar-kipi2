@@ -1,68 +1,107 @@
 @extends('layouts.pakar')
 
-@section('content')
-    <div class="container mx-auto py-6">
-        <h1 class="text-2xl font-bold mb-4">Data Pakar</h1>
+@section('page_title', 'Kelola Pakar')
 
-        {{-- Pesan sukses --}}
-        @if (session('success'))
-            <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
-                {{ session('success') }}
+@section('content')
+
+    {{-- Pesan sukses --}}
+    @if (session('success'))
+        <div class="relative bg-green-50 text-green-800 px-6 py-4 rounded-xl mb-8 flex items-center shadow-md border-l-4 border-green-500"
+            role="alert">
+            <div class="flex-shrink-0 mr-4">
+                <i class="fas fa-check-circle text-2xl text-green-600"></i>
             </div>
-        @endif
-        {{-- Tombol tambah gejala --}}
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <a href="{{ route('pakar.create') }}" class="btn btn-primary mb-3">Tambah Pakar</a>
-            {{-- Form Pencarian --}}
-            <form method="GET" action="{{ route('pakar.pengetahuan.index') }}" class="mb-4 flex gap-2">
+            <div class="flex-grow">
+                <span class="font-semibold">{{ session('success') }}</span>
+            </div>
+            <button type="button" class="absolute top-3 right-3 text-green-700 hover:text-green-900 transition-colors"
+                onclick="this.parentElement.style.display='none'">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+    @endif
+
+    {{-- Main container untuk tabel --}}
+    <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+
+        {{-- Header untuk Aksi (Tambah & Cari) --}}
+        <div class="p-6 md:p-8 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
+            <a href="{{ route('pakar.create') }}"
+                class="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-indigo-700 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 w-full md:w-auto text-center justify-center">
+                <i class="fas fa-plus"></i>
+                <span>Tambah Pakar Baru</span>
+            </a>
+
+            <form method="GET" action="{{ route('pakar.index') }}" class="relative w-full md:max-w-xs group">
                 <input type="text" name="search" placeholder="Cari nama atau email..." value="{{ request('search') }}"
-                    class="border border-gray-300 rounded px-4 py-2 flex-grow focus:outline-none focus:ring focus:border-blue-500">
-                <button type="submit" class="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700">
-                    Cari
-                </button>
+                    class="block w-full pl-12 pr-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-0 focus:border-indigo-500 transition-all duration-300 text-slate-800 placeholder-slate-400 group-hover:border-indigo-400">
+                <i
+                    class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors"></i>
             </form>
         </div>
 
-
-        {{-- Tabel Data Pakar --}}
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped text-center align-middle">
-                <thead class="table-dark">
+        {{-- Tabel daftar pakar --}}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-100">
                     <tr>
-                        <th>Nama</th>
-                        <th>Email</th>
-                        <th>Aksi</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Nama
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Email
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                            Tanggal Daftar
+                        </th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Aksi
+                        </th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse ($pakars as $pakar)
-                        <tr>
-                            <td>{{ $pakar->name }}</td>
-                            <td>{{ $pakar->email }}</td>
-                            <td class="border px-4 py-2 text-center">
-                                <div class="d-flex justify-content-center">
-                                    {{-- Tombol Edit --}}
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($pakars as $pakar)
+                        <tr class="group hover:bg-slate-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold text-xs">
+                                        {{ substr($pakar->name, 0, 1) }}
+                                    </div>
+                                    {{ $pakar->name }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                                {{ $pakar->email }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                                {{ $pakar->created_at->format('d M Y') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex justify-center items-center gap-4">
                                     <a href="{{ route('pakar.edit', $pakar->id_user) }}"
-                                        class="btn btn-warning btn-sm me-2">
-                                        <i class="fas fa-edit"></i> Edit
+                                        class="text-indigo-500 hover:text-indigo-700 transition-colors duration-200"
+                                        title="Edit Pakar">
+                                        <i class="fas fa-edit text-lg"></i>
                                     </a>
-
-                                    {{-- Tombol Hapus --}}
                                     <form action="{{ route('pakar.destroy', $pakar->id_user) }}" method="POST"
-                                        onsubmit="return confirm('Yakin ingin menghapus pakar ini?')" class="m-0 p-0">
+                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus pakar ini? Tindakan ini tidak dapat dibatalkan.')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm">
-                                            <i class="fas fa-trash-alt"></i> Hapus
+                                        <button type="submit"
+                                            class="text-red-500 hover:text-red-700 transition-colors duration-200"
+                                            title="Hapus Pakar">
+                                            <i class="fas fa-trash-alt text-lg"></i>
                                         </button>
                                     </form>
                                 </div>
                             </td>
-
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="text-center py-4 text-gray-600">Belum ada data pakar.</td>
+                            <td colspan="4" class="px-6 py-12 text-center text-slate-500 bg-slate-50">
+                                <i class="fas fa-user-md fa-4x mb-4 text-slate-300"></i>
+                                <p class="text-xl font-medium">Data pakar tidak ditemukan.</p>
+                                <p class="text-md mt-2">Belum ada pakar yang ditambahkan atau tidak sesuai dengan pencarian
+                                    Anda.</p>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

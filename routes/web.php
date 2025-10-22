@@ -72,15 +72,15 @@ Route::middleware('auth')->group(function () {
     // -- RIWAYAT DIAGNOSA (ORANG TUA) --
     Route::get('/riwayat-diagnosa', [HasilDiagnosaController::class, 'index'])->name('riwayat.index');
     Route::post('/riwayat-diagnosa/simpan', [HasilDiagnosaController::class, 'simpan'])->name('riwayat.simpan');
-    Route::get('/riwayat/{diagnosa}', [HasilDiagnosaController::class, 'show'])->name('riwayat.show');
-    Route::delete('/riwayat/{diagnosa}', [HasilDiagnosaController::class, 'destroy'])->name('riwayat.destroy');
-    Route::get('/riwayat/{diagnosa}/cetak', [HasilDiagnosaController::class, 'cetak'])->name('riwayat.cetak');
+    Route::get('/riwayat/{id}', [HasilDiagnosaController::class, 'show'])->name('riwayat.show');
+    Route::delete('/riwayat/{id}', [HasilDiagnosaController::class, 'destroy'])->name('riwayat.destroy');
+    Route::get('/riwayat/{id}/cetak', [HasilDiagnosaController::class, 'cetak'])->name('riwayat.cetak');
 
     // ✅ ROUTE LAPORAN (DIPINDAH KELUAR DARI GROUP PAKAR)
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('/', [LaporanController::class, 'index'])->name('index');
-        Route::get('/{laporan}', [LaporanController::class, 'show'])->name('show');
-        Route::delete('/{laporan}', [LaporanController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [LaporanController::class, 'show'])->name('show');
+        Route::delete('/{id}', [LaporanController::class, 'destroy'])->name('destroy');
 
         // Route tambahan untuk laporan KIPI
         Route::get('/kipi-bulanan', [HasilDiagnosaController::class, 'laporanBulanan'])->name('kipi.bulanan');
@@ -90,7 +90,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware(CheckRole::class . ':pakar')->prefix('pakar')->name('pakar.')->group(function () {
 
         // -- MANAJEMEN PAKAR LAIN --
-        Route::resource('pakar', PakarController::class)->except(['show'])->parameters(['pakar' => 'pakar']);
+        Route::get('/pakar', [PakarController::class, 'index'])->name('index');
+        Route::get('/pakar/create', [PakarController::class, 'create'])->name('create');
+        Route::post('/pakar', [PakarController::class, 'store'])->name('store');
+        Route::get('/pakar/{id}/edit', [PakarController::class, 'edit'])->name('edit');
+        Route::put('/pakar/{id}', [PakarController::class, 'update'])->name('update');
+        Route::delete('/pakar/{id}', [PakarController::class, 'destroy'])->name('destroy');
 
         // -- MANAJEMEN USER (ORANG TUA) --
         Route::get('user', [PakarController::class, 'user'])->name('user');
@@ -118,11 +123,11 @@ Route::middleware('auth')->group(function () {
 
         // -- MELIHAT DATA DIAGNOSA (KIPI) --
         Route::get('/riwayat/kipi', [HasilDiagnosaController::class, 'kipi'])->name('riwayat.kipi');
-        Route::get('/riwayat/kipi/{diagnosa}', [HasilDiagnosaController::class, 'detailKIPI'])->name('riwayat.kipi.detail');
+        Route::get('/riwayat/kipi/{id}', [HasilDiagnosaController::class, 'detailKIPI'])->name('riwayat.kipi.detail');
 
         // -- KIRIM LAPORAN --
         Route::post('/riwayat/kirim', [HasilDiagnosaController::class, 'kirimBulanan'])->name('riwayat.kipi.kirim');
-        Route::post('/kipi-berat/{diagnosa}/kirim', [HasilDiagnosaController::class, 'kirimKIPIBerat'])->name('riwayat.berat.kirim');
+        Route::post('/kipi-berat/{id}/kirim', [HasilDiagnosaController::class, 'kirimKIPIBerat'])->name('riwayat.berat.kirim');
     }); // End Middleware Pakar
 
 });

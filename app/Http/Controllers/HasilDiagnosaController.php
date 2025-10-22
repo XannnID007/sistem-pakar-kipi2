@@ -93,8 +93,6 @@ class HasilDiagnosaController extends Controller
             ->with('success', 'Diagnosa berhasil disimpan ke riwayat.');
     }
 
-
-
     public function show($id)
     {
         // Logika ini sudah benar, FindOrFail akan mencari 
@@ -186,7 +184,7 @@ class HasilDiagnosaController extends Controller
 
     public function detailKIPI($id)
     {
-        // Logika ini sudah benar
+        // DIPERBAIKI: Menggunakan parameter $id yang konsisten dengan route
         $diagnosa = Diagnosa::with(['gejalaDipilih.gejala'])->findOrFail($id);
 
         // 🔔 Cek apakah KIPI berat dan belum dibaca
@@ -200,7 +198,6 @@ class HasilDiagnosaController extends Controller
             'gejala' => $diagnosa->gejalaDipilih,
         ]);
     }
-
 
     // Halaman preview laporan bulanan
     public function laporanBulanan(Request $request)

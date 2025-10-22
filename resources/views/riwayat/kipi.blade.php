@@ -5,6 +5,17 @@
 
 @section('content')
 
+    {{-- Pesan sukses (jika ada, misal setelah menghapus) --}}
+    @if (session('success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" x-transition:leave="transition ease-in duration-500"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+            class="relative bg-green-50 text-green-800 px-6 py-4 rounded-xl mb-8 flex items-center shadow-md border-l-4 border-green-500"
+            role="alert">
+            <i class="fas fa-check-circle text-2xl text-green-600 mr-4"></i>
+            <span class="font-semibold">{{ session('success') }}</span>
+        </div>
+    @endif
+
     {{-- Main container untuk filter dan tabel --}}
     <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
 
@@ -133,9 +144,10 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-800">
                                     {{ number_format($item->nilai_cf * 100) }}%</td>
                                 <td class="px-6 py-4 text-sm text-slate-700 min-w-[20rem]">
-                                    {{ Str::limit($item->saran, 70) }}</td>
+                                    {{ Str::limit($item->saran, 70) }}</td> {{-- Membatasi panjang saran --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <a href="{{ route('pakar.riwayat.kipi.detail', $item->id) }}"
+                                    <a href="{{ route('pakar.riwayat.kipi.detail', $item->id_diagnosa) }}"
+                                        {{-- Pastikan menggunakan id_diagnosa --}}
                                         class="flex items-center gap-1 bg-sky-500 text-white px-3 py-1 rounded-md text-xs font-medium hover:bg-sky-600 transition-colors">
                                         <i class="fas fa-eye"></i>
                                         <span>Lihat Detail</span>
@@ -147,5 +159,13 @@
                 </table>
             @endif
         </div>
+
+        {{-- Pagination Links (jika menggunakan pagination) --}}
+        @if ($riwayat instanceof \Illuminate\Pagination\LengthAwarePaginator && $riwayat->hasPages())
+            <div class="p-6 bg-slate-50 border-t border-slate-200">
+                {{ $riwayat->appends(request()->query())->links() }} {{-- Pastikan gaya pagination sesuai Tailwind --}}
+            </div>
+        @endif
+
     </div>
 @endsection

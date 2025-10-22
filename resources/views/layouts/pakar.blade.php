@@ -55,21 +55,28 @@
                             class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                                   {{ request()->routeIs('pakar.gejala.*') ? 'bg-indigo-600 text-white shadow-lg' : 'hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-stethoscope fa-fw w-5 text-center"></i>
-                            <span>Gejala</span>
+                            <span>Kelola Gejala</span>
                         </a>
 
                         <a href="{{ route('pakar.kategori_kipi.index') }}"
                             class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                                   {{ request()->routeIs('pakar.kategori_kipi.*') ? 'bg-indigo-600 text-white shadow-lg' : 'hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-layer-group fa-fw w-5 text-center"></i>
-                            <span>Kategori KIPI</span>
+                            <span>Kelola Kategori KIPI</span>
                         </a>
 
                         <a href="{{ route('pakar.aturan.index') }}"
                             class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                                   {{ request()->routeIs('pakar.aturan.*') ? 'bg-indigo-600 text-white shadow-lg' : 'hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-book-medical fa-fw w-5 text-center"></i>
-                            <span>Aturan</span>
+                            <span>Kelola Aturan</span>
+                        </a>
+
+                        <a href="{{ route('pakar.index') }}"
+                            class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
+                                  {{ request()->routeIs('pakar.index') || request()->routeIs('pakar.create') || request()->routeIs('pakar.edit') || request()->routeIs('pakar.store') || request()->routeIs('pakar.update') ? 'bg-indigo-600 text-white shadow-lg' : 'hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-user-md fa-fw w-5 text-center"></i>
+                            <span>Kelola Pakar</span>
                         </a>
 
                         <a href="{{ route('pakar.riwayat.kipi') }}"
@@ -122,7 +129,8 @@
 
                         <div class="px-4 py-3 border-b border-slate-200">
                             <p class="text-sm font-semibold text-slate-800">{{ Auth::user()->name }}</p>
-                            <p class="text-xs text-slate-500">{{ Auth::user()->email ?? 'Role: ' . Auth::user()->role }}
+                            <p class="text-xs text-slate-500">
+                                {{ Auth::user()->email ?? 'Role: ' . Auth::user()->role }}
                             </p>
                         </div>
 
